@@ -11,4 +11,14 @@ Front-end is made in Javascripts + HTML
 
 # Instructions to install
 
-********Aquí poner las instrucciones para instalar la app**************
+1. Instalar las librerías que aparecen en requirements.
+2. Cambiar el documento .envtemplate a .env y sustituir su contenido.
+3. En la carpeta migrations crear una base de datos. La prueba de esta aplicación se ha hecho mediante una base sqlite. Los campos a incluir son los  siguientes:
+- id
+- fecha
+- hora
+- moneda_from
+- cantidad_from
+- moneda_to
+- cantidad_to
+4. En el archivo config definir la ruta a la base de datos.

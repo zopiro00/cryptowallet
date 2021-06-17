@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Wallet</title>
+    <link rel="stylesheet" href="static/css/mini-dark.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <script src="static/js/crypto.js"></script>
+</head>
+<body>
+    <header>
+        <h1>CRYPTO WALLET </h1>
+    </header>
+    <section class="" id="principal">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h2 class="title is-4">Mis divisas</h2>
+                <table class="hoverable" id="movimientos">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>From</th>
+                            <th>Cantidad From</th>
+                            <th>To</th>
+                            <th>Cantidad To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </div>
+                <div class="col-sm-3">
+                    <h2 class="title is-4">Inversion</h2>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <form class="col-sm-12">
+                    <label>From</label>
+                    <select name="moneda_from" id="moneda_from" placeholder="required">
+                        <option value="EUR">Euro(EUR)</option>
+                        <option value="BTC">Bitcoin(BTC)</option>
+                        <option value="ETH">Ethereum(ETH)</option>
+                        <option value="DOGE">Dodgecoin(DOGE)</option>
+                        <option value="BNB">Binance(BNB)</option>
+                        <option value="ADA">Cardano(ADA)</option>
+                        <option value="USDT">Tether(USDT)</option>
+                    </select>
+                    <label>Cantidad</label>
+                    <input name="cantidad_from" id="cantidad_from" placeholder="required">
+                    <label>To</label>
+                    <select name="moneda_to" id="moneda_to">
+                        <option value="EUR">Euro(EUR)</option>
+                        <option value="BTC">Bitcoin(BTC)</option>
+                        <option value="ETH">Ethereum(ETH)</option>
+                        <option value="DOGE">Dodgecoin(DOGE)</option>
+                        <option value="BNB">Binance(BNB)</option>
+                        <option value="ADA">Cardano(ADA)</option>
+                        <option value="USDT">Tether(USDT)</option>
+                    </select>
+                    <label>Cantidad</label>
+                    <input name="cantidad_to" id="cantidad_to" disabled placeholder="pulsa refrescar para mostrar">
+                    <div>
+                        <button class="inverse" id="calcular">Calcular</button>
+                        <button class="inverse" id="guardar">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <footer class="fixed">
+            <p>&copy Hugo F. Garcia 2021. Algunos derechos reservados.</p>
+    </footer>
+</body>
+</html>
