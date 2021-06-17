@@ -10,6 +10,7 @@ dbManager = DBmanager(app.config.get("DATABASE"))
 def render():
    return render_template ("crypto.html")
 
+#Detalle de movimientos devuelve todos los movimientos de la base de datos.
 @app.route("/api/v1/movimientos")
 def movimientos():
     query = "SELECT * FROM mis_movimientos;"
@@ -20,3 +21,14 @@ def movimientos():
     except sqlite3.Error as e:
         return jsonify({"status": "fail", "mensaje": str(e)})
 
+#Detalle de UN  movimiento. Devuelve datos de un movimiento (GET)
+#Sin id graba el movimiento en la API
+@app.route('/api/v1/movimiento/<int:id>', methods=['GET'])
+@app.route('/api/v1/movimiento', methods=['POST'])
+def detalleMovimiento(id=None):
+    pass
+
+#Estado de la inversion
+@app.route('/api/v1/status')
+def status():
+    pass

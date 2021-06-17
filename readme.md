@@ -7,7 +7,9 @@ Date 17/06/2021
 
 # Technology
 Back-end is based in python flask.
-Front-end is made in Javascripts + HTML
+Front-end is made in Javascript
+
+CSS is based in mini-css but some miner changes has been made.
 
 # Instructions to install
 
@@ -21,4 +23,18 @@ Front-end is made in Javascripts + HTML
 - cantidad_from
 - moneda_to
 - cantidad_to
+
+Un ejemplo del código SQL sería el siguiente:
+```
+CREATE TABLE "mis_movimientos" (
+	"id"	INTEGER,
+	"fecha"	TEXT NOT NULL,
+	"hora"	TEXT NOT NULL,
+	"from"	TEXT NOT NULL,
+	"cantidad_from"	NUMERIC NOT NULL,
+	"to"	TEXT NOT NULL,
+	"cantidad_to"	NUMERIC NOT NULL,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+``` 
 4. En el archivo config definir la ruta a la base de datos.
