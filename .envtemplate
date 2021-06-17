@@ -1,0 +1,2 @@
+FLASK_APP = your init archive here
+FLASK_ENV = your environment here
