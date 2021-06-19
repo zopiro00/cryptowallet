@@ -20,6 +20,16 @@ function ahora() {
     return hoy
 }
 
+function ocultar(operador) {
+    b = document.querySelector(operador)
+    b.setAttribute("class", "hidden")
+}
+function mostrar(operador) {
+    b = document.querySelector(operador)
+    b.removeAttribute("class")
+    b.setAttribute("class", "inverse")
+}
+
 // Pide al servidor que muestre los movimientos en Pantalla.
 function muestraMovimientos() {
     if (this.readyState === 4 && this.status === 200) {
@@ -76,17 +86,9 @@ function respuestaApi() {
         cantidad_to.setAttribute("placeholder",quote)
 
         // Cambio los botones inferiores.
-        botonera = document.querySelector("#botonera")
-        botonera.innerHTML = ""
-        boton_aceptar = document.createElement("button")
-        boton_aceptar.setAttribute("id", "aceptar")
-        boton_aceptar.innerHTML = "Aceptar"
-        boton_cancelar = document.createElement("button")
-        boton_cancelar.setAttribute("id", "cancelar")
-        boton_cancelar.setAttribute("class", "inverse")
-        boton_cancelar.innerHTML ="Cancelar"
-        botonera.appendChild(boton_aceptar)
-        botonera.appendChild(boton_cancelar)
+        ocultar("#calcular")
+        mostrar("#aceptar")
+        mostrar("#cancelar")
 
     }
 }
@@ -131,16 +133,10 @@ window.onload = function() {
     if (document.querySelector("#cancelar")){
         document.querySelector("#cancelar")
         .addEventListener("click", () => {
-            // Restablecer formulario
-
-            botonera = document.querySelector("#botonera")
-            botonera.innerHTML = ""
-            boton_cancular = document.createElement("button")
-            boton_calcular.setAttribute("id", "calcular")
-            boton_calcular.innerHTML = "Calcular"
-            boton_calcular.setAttribute("class", "inverse")
-            botonera.appendChild(boton_calcular)
-
+            // Restablecer formulario            
+            mostrar("#calcular")
+            ocultar("#aceptar")
+            ocultar("#cancelar")
             cantidad_to = document.querySelector("#cantidad_to")
             cantidad_to.setAttribute("placeholder", "pulse calcular para mostrar")
 
