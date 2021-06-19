@@ -4,3 +4,4 @@ data/
 config.py
 __pycache__/
 info-util.txt
+test.py

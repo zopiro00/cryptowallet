@@ -4,7 +4,7 @@ const divisas = {
     ETH: "Ethereum(ETH)",
     DOGE: "Dodgecoin(DOGE)",
     BNB: "Binance(BNB)",
-    ADA: "Cardano(ADA",
+    ADA: "Cardano(ADA)",
     USDT: "Tether(USDT)"
 }
 

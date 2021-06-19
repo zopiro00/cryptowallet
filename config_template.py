@@ -1,4 +1,2 @@
-DATABASE = "path to your database"
-"""
-Mi suggestion is that you install it in a folder call data for order and legibility"
-"""
+DATABASE = "path to your database" #Mi suggestion is that you install it in a folder call data for order and legibility.
+CRYPTOS = ["EUR","BTC","ADA","ETH","DOGE","BNB","USDT"] #You can add more types or change these ones based on your preferences.
