@@ -30,9 +30,9 @@ CREATE TABLE "mis_movimientos" (
 	"id"	INTEGER,
 	"fecha"	TEXT NOT NULL,
 	"hora"	TEXT NOT NULL,
-	"from"	TEXT NOT NULL,
+	"moneda_from"	TEXT NOT NULL,
 	"cantidad_from"	NUMERIC NOT NULL,
-	"to"	TEXT NOT NULL,
+	"moneda_to"	TEXT NOT NULL,
 	"cantidad_to"	NUMERIC NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );

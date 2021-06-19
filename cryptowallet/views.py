@@ -29,12 +29,16 @@ def detalleMovimiento(id=None):
     try:
         if request.method == 'POST':
                 dbManager.modificaTablaSQL( """
-                                            INSERT INTO movimientos fecha,hora,from,cantidad_from,to_cantidad_to
-                                            VALUES ?,?,?,?,?,?""", request.json)
+                                            INSERT INTO mis_movimientos (fecha,hora,moneda_from,cantidad_from,moneda_to,cantidad_to)
+                                            VALUES (?,?,?,?,?,?)""",
+                                            [request.json["fecha"],
+                                            request.json["hora"],
+                                            request.json["moneda_from"],
+                                            request.json["cantidad_from"],
+                                            request.json["moneda_to"],
+                                            request.json["cantidad_to"]])
 
                 return jsonify({"status": "success", "mensaje": "registro modificado"})
-        else:
-            return "se ha hecho un GET"
     except sqlite3.Error as e:
         print ("Error en SQL INSERT", e)
         return jsonify({"status": "fail", "mensaje": "error en base de datos. Tipo {}".format(e)})

@@ -30,6 +30,12 @@ function mostrar(operador) {
     b.setAttribute("class", "inverse")
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/* Hasta Aquí las funciones comunes o utilidades para el código */
+///////////////////////////////////////////////////////////////////////////////
+
+
+
 // Pide al servidor que muestre los movimientos en Pantalla.
 function muestraMovimientos() {
     if (this.readyState === 4 && this.status === 200) {
@@ -51,9 +57,9 @@ function muestraMovimientos() {
             const dentro = `
                 <td>${movimiento.fecha}</td>
                 <td>${movimiento.hora}</td>
-                <td>${movimiento.from ? divisas[movimiento.from] : "" }</td>
+                <td>${movimiento.moneda_from ? divisas[movimiento.moneda_from] : "" }</td>
                 <td>${movimiento.cantidad_from}</td>
-                <td>${movimiento.to ? divisas[movimiento.to] : "" }</td>
+                <td>${movimiento.moneda_to ? divisas[movimiento.moneda_to] : "" }</td>
                 <td>${movimiento.cantidad_to}</td>`
             fila.innerHTML = dentro
             tbody.appendChild(fila)
@@ -103,6 +109,7 @@ function nuevo_movimiento() {
             return
         }
     }
+    access_database()
 }
 
 xhr_calc = new XMLHttpRequest()
@@ -113,7 +120,8 @@ window.onload = function() {
 
     //funcion asincrona, lo que va a pasar cuando la api externa responda
     xhr_calc.onload = respuestaApi
-    //Lo que ocurre al apretar el botón calcular.
+
+    // SI SE PULSA CALCULAR SE PREGUNTA EL VALOR DE CAMBIO A LA API COINMARKET Y SE DEVUELVE EL VALOR.
     document.querySelector("#calcular")
     .addEventListener("click", (evento) => {
         evento.preventDefault()
@@ -130,38 +138,36 @@ window.onload = function() {
         xhr_calc.send()
         console.log("peticion enviada.")
     })
-    if (document.querySelector("#cancelar")){
-        document.querySelector("#cancelar")
-        .addEventListener("click", () => {
-            // Restablecer formulario            
-            mostrar("#calcular")
-            ocultar("#aceptar")
-            ocultar("#cancelar")
-            cantidad_to = document.querySelector("#cantidad_to")
-            cantidad_to.setAttribute("placeholder", "pulse calcular para mostrar")
+    
+    //SI SE PULSA BOTÓN CANCELAR EL FORMULARIO SE RESTABLECE Y SE ANULA LA INSCRIPCIÓN
+    document.querySelector("#cancelar")
+    .addEventListener("click", () => {
+        // Restablecer formulario            
+        mostrar("#calcular")
+        ocultar("#aceptar")
+        ocultar("#cancelar")
+        cantidad_to = document.querySelector("#cantidad_to")
+        cantidad_to.setAttribute("placeholder", "pulse calcular para mostrar")
+    })
+    // SI SE PULSA ACEPTAR EL MOVIMIENTO DEBE ENVIARSE AL SERVIDOR PARA QUE LO PROCESE Y LO INCLUYA EN EL JQUERY.
+    document.querySelector("#aceptar")
+    .addEventListener("click", () => {
+        const cambio = {}
+        //Valores del formulario
+        cambio.moneda_from = document.querySelector("#moneda_from").value
+        cambio.cantidad_from = document.querySelector("#cantidad_from").value
+        cambio.moneda_to = document.querySelector("#moneda_to").value
+        cambio.cantidad_to = quote
+        //Hora en que se realiza la transacción
+        cambio.hora = ahora().hora
+        cambio.fecha = ahora().fecha
 
-
-        })
+        xhr_aceptar.open("POST", "http://localhost:5000/api/v1/movimiento", true)
         xhr_aceptar.onload = nuevo_movimiento
 
-        document.querySelector("#aceptar")
-        .addEventListener("click", () => {
-            const cambio = {}
-            //Valores del formulario
-            cambio.moneda_from = document.querySelector("#moneda_from").value
-            cambio.cantidad_from = document.querySelector("#cantidad_from").value
-            cambio.moneda_to = document.querySelector("#moneda_to").value
-            cambio.cantidad_to = document.querySelector("#cantidad_to").value
-            //Hora en que se realiza la transacción
-            cambio.hora = ahora().hora
-            cambio.fecha = ahora().fecha
+        xhr_aceptar.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+        xhr_aceptar.send(JSON.stringify(cambio))
 
-            xhr_aceptar.open("POST", "http://localhost:5000/api/v1/movimiento", true)
+    })
 
-            xhr_aceptar.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-
-            xhr_aceptar.send(JSON.stringify(cambio))
-
-        })
-    }
 }
