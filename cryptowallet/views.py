@@ -26,7 +26,18 @@ def movimientos():
 @app.route('/api/v1/movimiento/<int:id>', methods=['GET'])
 @app.route('/api/v1/movimiento', methods=['POST'])
 def detalleMovimiento(id=None):
-    pass
+    try:
+        if request.method == 'POST':
+                dbManager.modificaTablaSQL( """
+                                            INSERT INTO movimientos fecha,hora,from,cantidad_from,to_cantidad_to
+                                            VALUES ?,?,?,?,?,?""", request.json)
+
+                return jsonify({"status": "success", "mensaje": "registro modificado"})
+        else:
+            return "se ha hecho un GET"
+    except sqlite3.Error as e:
+        print ("Error en SQL INSERT", e)
+        return jsonify({"status": "fail", "mensaje": "error en base de datos. Tipo {}".format(e)})
 
 #Estado de la inversion
 @app.route('/api/v1/status')

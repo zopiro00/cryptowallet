@@ -10,7 +10,15 @@ const divisas = {
 
 let losMovimientos
 
+function ahora() {
+    d = new Date()
+    sd = d.toISOString()
+    const hoy = {}
+    hoy.hora = sd.slice(11,19)
+    hoy.fecha = sd.slice(0,10)
 
+    return hoy
+}
 
 // Pide al servidor que muestre los movimientos en Pantalla.
 function muestraMovimientos() {
@@ -112,34 +120,52 @@ window.onload = function() {
         consulta.cantidad_from = document.querySelector("#cantidad_from").value
         consulta.moneda_to = document.querySelector("#moneda_to").value
 
-        xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}&CMC_PRO_API_KEY=8b1effc1-2b33-494f-9985-03360eb3e35c`)
+        xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
+
+        xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", "8b1effc1-2b33-494f-9985-03360eb3e35c")
+        xhr_calc.setRequestHeader("Access-Control-Allow-Origin", "https://coinmarketcap.com/")
+
         xhr_calc.send()
         console.log("peticion enviada.")
     })
-    document.querySelector("#cancelar")
-    .addEventListener("click", () => {
-        // Restablecer formulario
+    if (document.querySelector("#cancelar")){
+        document.querySelector("#cancelar")
+        .addEventListener("click", () => {
+            // Restablecer formulario
 
-        botonera = document.querySelector("#botonera")
-        botonera.innerHTML = ""
-        boton_cancular = document.createElement("button")
-        boton_calcular.setAttribute("id", "calcular")
-        boton_calcular.innerHTML = "Calcular"
-        boton_calcular.setAttribute("class", "inverse")
-        botonera.appendChild(boton_calcular)
+            botonera = document.querySelector("#botonera")
+            botonera.innerHTML = ""
+            boton_cancular = document.createElement("button")
+            boton_calcular.setAttribute("id", "calcular")
+            boton_calcular.innerHTML = "Calcular"
+            boton_calcular.setAttribute("class", "inverse")
+            botonera.appendChild(boton_calcular)
 
-        cantidad_to = document.querySelector("#cantidad_to")
-        cantidad_to.setAttribute("placeholder", "pulse calcular para mostrar")
+            cantidad_to = document.querySelector("#cantidad_to")
+            cantidad_to.setAttribute("placeholder", "pulse calcular para mostrar")
 
 
-    })
-    xhr_aceptar.onload = nuevo_movimiento
+        })
+        xhr_aceptar.onload = nuevo_movimiento
 
-    document.querySelector("#aceptar")
-    .addEventListener("click", () => {
-        xhr_aceptar.open("POST", "api/v1/movimiento")
+        document.querySelector("#aceptar")
+        .addEventListener("click", () => {
+            const cambio = {}
+            //Valores del formulario
+            cambio.moneda_from = document.querySelector("#moneda_from").value
+            cambio.cantidad_from = document.querySelector("#cantidad_from").value
+            cambio.moneda_to = document.querySelector("#moneda_to").value
+            cambio.cantidad_to = document.querySelector("#cantidad_to").value
+            //Hora en que se realiza la transacción
+            cambio.hora = ahora().hora
+            cambio.fecha = ahora().fecha
 
-        xhr_aceptar.send()
+            xhr_aceptar.open("POST", "http://localhost:5000/api/v1/movimiento", true)
 
-    })
+            xhr_aceptar.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+            xhr_aceptar.send(JSON.stringify(cambio))
+
+        })
+    }
 }
