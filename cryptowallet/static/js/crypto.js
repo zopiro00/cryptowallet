@@ -33,11 +33,38 @@ function mostrar(operador) {
     b.setAttribute("class", "inverse")
 }
 
+function validar(consulta) {
+    validado = true
+    if (consulta.moneda_from == consulta.moneda_to) {
+        error = document.createElement("div")
+        error.setAttribute("class","card error")
+        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Las divisas deben ser distintas</div>"
+        document.querySelector("#errores").appendChild(error)
+        validado = false 
+    }
+    if (consulta.moneda_from != "EUR") {
+        saldo = inv.cryptos[consulta.moneda_from].total
+        if (consulta.cantidad_from > saldo) {
+            error = document.createElement("div")
+            error.setAttribute("class","card error")
+            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
+            document.querySelector("#errores").appendChild(error)
+            validado = false
+        }
+    }
+    if (consulta.cantidad_from >  1000000000 || consulta.cantidad_from < 0.00000001) { 
+        error = document.createElement("div")
+        error.setAttribute("class","card error")
+        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span>La cantidad debe estar comprendida entre 1e+8 y 1e-8</div>"
+        document.querySelector("#errores").appendChild(error)
+        validado = false
+    }
+    return validado
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /* Hasta Aquí las funciones comunes o utilidades para el código */
 ///////////////////////////////////////////////////////////////////////////////
-
-
 
 // Pide al servidor que muestre los movimientos en Pantalla.
 function muestraMovimientos() {
@@ -71,7 +98,6 @@ function muestraMovimientos() {
 }
 
 // Consultar estatus de la inversión
-
 function muestraStatus() {
     if (this.readyState === 4 && this.status === 200) {
         const estado = JSON.parse(this.responseText)
@@ -83,18 +109,38 @@ function muestraStatus() {
         }
 
         inv = estado.data
-
         document.querySelector("#d_invertido").innerHTML = `${inv.EUR.total.toFixed(decimales)} €`
         document.querySelector("#d_actual").innerHTML = `${inv.actual.toFixed(decimales)} €`
         document.querySelector("#d_resultado").innerHTML = `${inv.resultado.toFixed(decimales)} €`
-        document.querySelector("#hora").innerHTML = `<strong>Fecha:</strong> ${ahora().fecha} <strong>Hora:</strong> ${ahora().hora}`     
+        document.querySelector("#hora").innerHTML = `<strong>Fecha:</strong> ${ahora().fecha} <strong>Hora:</strong> ${ahora().hora}`
+        
+        for (const i in inv.cryptos) {
+            const fila = document.createElement("tr")
+            fila.innerHTML =`<td>${i}</td>
+                            <td>${inv.cryptos[i].total.toFixed(2)}</td>
+                            <td>${inv.cryptos[i].total_eur.toFixed(2)}</td>`
+            uni_status = document.querySelector("#uni_status tbody")
+            uni_status.appendChild(fila)
+            mostrar("#uni_status")
+            document.querySelector("#uni_status").setAttribute("class","hoverable")
+            // Permite consultar los movimientos específicos de una divisa concreta
+            fila.addEventListener("click", () => {access_database(i)})
+        }
+
     }
 }
 
 // Obtiene los movimientos a partir del servidor (el nuestro)
 xhr = new XMLHttpRequest()
-function access_database() {
-    xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
+function access_database(crypto = undefined) {
+    if (crypto == undefined) {
+        xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
+    }
+    else {
+        xhr.open("GET", `http://localhost:5000/api/v1/movimientos/${crypto}`, true)
+    }
+    
+    
     xhr.onload = muestraMovimientos
     xhr.send()
 }
@@ -168,32 +214,7 @@ window.onload = function() {
         consulta.moneda_to = document.querySelector("#moneda_to").value
 
         //Comprueba si las divisas son iguales.
-        if (consulta.moneda_from == consulta.moneda_to) {
-            error = document.createElement("div")
-            error.setAttribute("class","card error")
-            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Las divisas deben ser distintas</div>"
-            document.querySelector("#errores").appendChild(error)
-            fail = true 
-        }
-        if (consulta.moneda_from != "EUR") {
-            saldo = inv.cryptos[consulta.moneda_from].total
-            if (consulta.cantidad_from > saldo) {
-                error = document.createElement("div")
-                error.setAttribute("class","card error")
-                error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
-                document.querySelector("#errores").appendChild(error)
-                fail = true
-            }
-        }
-        if (consulta.cantidad_from >  1000000000 || consulta.cantidad_from < 0.00000001) { 
-            error = document.createElement("div")
-            error.setAttribute("class","card error")
-            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span>La cantidad debe estar comprendida entre 1e+8 y 1e-8</div>"
-            document.querySelector("#errores").appendChild(error)
-            fail = true
-        }
-
-        if (fail == false) {
+        if (validar(consulta)) {
             xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
     
             xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", "8b1effc1-2b33-494f-9985-03360eb3e35c")
@@ -234,10 +255,13 @@ window.onload = function() {
         xhr_aceptar.send(JSON.stringify(cambio))
 
     })
-    cruz = document.querySelector(".closebtn")
-    cruz.addEventListener("click", ()=> {
-        cruz.parentElement.parentElement.style.display='none'
-    })
+
     return 
 
 }
+
+/*
+cruz = document.querySelector(".closebtn")
+cruz.addEventListener("click", ()=> {
+    cruz.parentElement.parentElement.style.display='none'
+})*/
