@@ -8,6 +8,8 @@ const divisas = {
     USDT: "Tether(USDT)"
 }
 
+const decimales = 4
+
 let losMovimientos
 
 function ahora() {
@@ -67,13 +69,40 @@ function muestraMovimientos() {
     }
 }
 
+// Consultar estatus de la inversión
+
+function muestraStatus() {
+    if (this.readyState === 4 && this.status === 200) {
+        const estado = JSON.parse(this.responseText)
+        
+        if (estado.status !== "success") {
+            alert ("No se ha podido consultar el estado de la inversión")
+            console.log("falla la funcion status")
+            return
+        }
+
+        const inv = estado.data
+
+        document.querySelector("#d_invertido").innerHTML = `${inv.EUR.total.toFixed(decimales)} €`
+        document.querySelector("#d_actual").innerHTML = `${inv.actual.toFixed(decimales)} €`
+        document.querySelector("#d_resultado").innerHTML = `${inv.resultado.toFixed(decimales)} €`
+        mostrar("#status")
+    }
+
+}
+
 // Obtiene los movimientos a partir del servidor (el nuestro)
 xhr = new XMLHttpRequest()
+xhr_status = new XMLHttpRequest()
 
 function access_database() {
     xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
     xhr.onload = muestraMovimientos
     xhr.send()
+    
+    xhr_status.open("GET", `http://localhost:5000/api/v1/status`, true)
+    xhr_status.onload = muestraStatus
+    xhr_status.send()
 }
 
 function respuestaApi() {

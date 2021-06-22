@@ -89,21 +89,27 @@ def detalleMovimiento(id=None):
 def status():
     try:
         if request.method == "GET":
-            inversiones = {}
+            inversiones = {"cryptos": {}, "actual": 0, "resultado": 0}
             for i in CRYPTOS:
                 invertido = dbManager.consultaUnaSQL( "SELECT moneda_from , sum(cantidad_from) FROM mis_movimientos WHERE moneda_from = ?", [i])
                 recuperado = dbManager.consultaUnaSQL( "SELECT moneda_to, sum(cantidad_to) FROM mis_movimientos WHERE moneda_to = ?", [i])
+                # Este código funciona pero es feo. Habría que hacer algo con esos if horribles.
                 if invertido["moneda_from"] == None:
-                    
-
-                
+                    invertido["sum(cantidad_from)"] = 0
+                if recuperado["moneda_to"] == None:
+                    recuperado["sum(cantidad_to)"] = 0
                 if i != "EUR":
-                    total= recuperado["sum(cantidad_from)"]-invertido["sum(cantidad_to)"]
-                    respuesta = llamadaApi(i, total)
-                    inversiones[i]= {"total": total, "total_eur": respuesta["data"]["quote"]["EUR"]["price"]}
+                    total= recuperado["sum(cantidad_to)"]-invertido["sum(cantidad_from)"]
+                # Aquí me gustaría obtener los valores unitarios de las monedas que no tengo por si quiero invertir.
+                    if total != 0:
+                        respuesta = llamadaApi(total, i)
+                        inversiones["cryptos"][i]= {"total": total, "total_eur": respuesta["data"]["quote"]["EUR"]["price"]}
+                        inversiones["actual"] += respuesta["data"]["quote"]["EUR"]["price"]
                 else:
-                    total= invertido["sum(cantidad_to)"]-recuperado["sum(cantidad_from)"]
+                    total= float(invertido["sum(cantidad_from)"])-float(recuperado["sum(cantidad_to)"])
                     inversiones["EUR"]={"total": total, "total_eur": total}
+
+                inversiones["resultado"] += (inversiones["EUR"]["total_eur"] - inversiones["actual"])
 
             return jsonify({"status": "success", "data": inversiones})
             
