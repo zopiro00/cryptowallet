@@ -1345,8 +1345,8 @@ table td {
 }
 
 table:not(.horizontal) {
-  /*overflow: auto;*/
-  max-height: 400px;
+  /*overflow-y: auto;
+  max-height: 400px;*/
 }
 
 table:not(.horizontal) thead, table:not(.horizontal) tbody {

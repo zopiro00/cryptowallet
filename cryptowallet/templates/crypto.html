@@ -35,19 +35,19 @@
                 </div>
                 <div class="col-sm-3" id="inversion">
                     <h2 class="title is-4">Inversion</h2>
-                    <table class="hidden" id="status">
+                    <table class="" id="status">
                         <thead></thead>
                         <tbody>
                             <tr>
-                                <td>Invertido:</td>
+                                <td><strong>Invertido:</strong></td>
                                 <td id="d_invertido"></td>
                             </tr>
                             <tr>
-                                <td>Valor....  :</td>
+                                <td><strong>Valor....  :</strong></td>
                                 <td id="d_actual"></td>
                             </tr>
                             <tr>
-                                <td>Resultado:</td>
+                                <td><strong>Resultado:</strong></td>
                                 <td id="d_resultado"></td>
                             </tr>
                         </tbody>
@@ -64,6 +64,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    <h6 id="hora"></h6>
                 </div>
             </div>
         </div>
@@ -99,6 +100,7 @@
                         <button class="inverse hidden" id="aceptar">Aceptar</button>
                         <button class="inverse hidden" id="cancelar">Cancelar</button>
                     </div>
+                    <div id="errores"></div>
                 </form>
             </div>
         </div>
@@ -106,5 +108,6 @@
     <footer class="fixed">
             <p>&copy Hugo F. Garcia 2021. Algunos derechos reservados.</p>
     </footer>
+    <p class="closebtn hidden"></p>
 </body>
 </html>

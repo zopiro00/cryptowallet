@@ -3,6 +3,7 @@ footer.fixed {
     left: 0;
     bottom: 0;
     width: 100%;
+    max-height: 5%;
     color: white;
     text-align: center;
 
@@ -10,3 +11,21 @@ footer.fixed {
 .hidden {
     display: none;
 }
+
+
+/* Boton cerrar */
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  /* Cambiar color de botón */
+  .closebtn:hover {
+    color: black;
+  }

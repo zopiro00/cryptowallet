@@ -11,6 +11,7 @@ const divisas = {
 const decimales = 4
 
 let losMovimientos
+let inv
 
 function ahora() {
     d = new Date()
@@ -60,9 +61,9 @@ function muestraMovimientos() {
                 <td>${movimiento.fecha}</td>
                 <td>${movimiento.hora}</td>
                 <td>${movimiento.moneda_from ? divisas[movimiento.moneda_from] : "" }</td>
-                <td>${movimiento.cantidad_from}</td>
+                <td>${movimiento.cantidad_from.toFixed(decimales)}</td>
                 <td>${movimiento.moneda_to ? divisas[movimiento.moneda_to] : "" }</td>
-                <td>${movimiento.cantidad_to}</td>`
+                <td>${movimiento.cantidad_to.toFixed(decimales)}</td>`
             fila.innerHTML = dentro
             tbody.appendChild(fila)
         }
@@ -81,25 +82,26 @@ function muestraStatus() {
             return
         }
 
-        const inv = estado.data
+        inv = estado.data
 
         document.querySelector("#d_invertido").innerHTML = `${inv.EUR.total.toFixed(decimales)} €`
         document.querySelector("#d_actual").innerHTML = `${inv.actual.toFixed(decimales)} €`
         document.querySelector("#d_resultado").innerHTML = `${inv.resultado.toFixed(decimales)} €`
-        mostrar("#status")
+        document.querySelector("#hora").innerHTML = `<strong>Fecha:</strong> ${ahora().fecha} <strong>Hora:</strong> ${ahora().hora}`     
     }
-
 }
 
 // Obtiene los movimientos a partir del servidor (el nuestro)
 xhr = new XMLHttpRequest()
-xhr_status = new XMLHttpRequest()
-
 function access_database() {
     xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
     xhr.onload = muestraMovimientos
     xhr.send()
-    
+}
+
+//Obtiene el valor de la inversión actual consultando a la api externa.
+xhr_status = new XMLHttpRequest()
+function access_status() {
     xhr_status.open("GET", `http://localhost:5000/api/v1/status`, true)
     xhr_status.onload = muestraStatus
     xhr_status.send()
@@ -139,6 +141,7 @@ function nuevo_movimiento() {
         }
     }
     access_database()
+    access_status()
 }
 
 xhr_calc = new XMLHttpRequest()
@@ -146,6 +149,7 @@ xhr_aceptar = new XMLHttpRequest
 
 window.onload = function() {
     access_database()
+    access_status()
 
     //funcion asincrona, lo que va a pasar cuando la api externa responda
     xhr_calc.onload = respuestaApi
@@ -154,18 +158,50 @@ window.onload = function() {
     document.querySelector("#calcular")
     .addEventListener("click", (evento) => {
         evento.preventDefault()
+        //Reset
+        document.querySelector("#errores").innerHTML = ""
+        fail = false
+
         const consulta = {}
         consulta.moneda_from = document.querySelector("#moneda_from").value
         consulta.cantidad_from = document.querySelector("#cantidad_from").value
         consulta.moneda_to = document.querySelector("#moneda_to").value
 
-        xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
+        //Comprueba si las divisas son iguales.
+        if (consulta.moneda_from == consulta.moneda_to) {
+            error = document.createElement("div")
+            error.setAttribute("class","card error")
+            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Las divisas deben ser distintas</div>"
+            document.querySelector("#errores").appendChild(error)
+            fail = true 
+        }
+        if (consulta.moneda_from != "EUR") {
+            saldo = inv.cryptos[consulta.moneda_from].total
+            if (consulta.cantidad_from > saldo) {
+                error = document.createElement("div")
+                error.setAttribute("class","card error")
+                error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
+                document.querySelector("#errores").appendChild(error)
+                fail = true
+            }
+        }
+        if (consulta.cantidad_from >  1000000000 || consulta.cantidad_from < 0.00000001) { 
+            error = document.createElement("div")
+            error.setAttribute("class","card error")
+            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span>La cantidad debe estar comprendida entre 1e+8 y 1e-8</div>"
+            document.querySelector("#errores").appendChild(error)
+            fail = true
+        }
 
-        xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", "8b1effc1-2b33-494f-9985-03360eb3e35c")
-        xhr_calc.setRequestHeader("Access-Control-Allow-Origin", "https://coinmarketcap.com/")
-
-        xhr_calc.send()
-        console.log("peticion enviada.")
+        if (fail == false) {
+            xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
+    
+            xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", "8b1effc1-2b33-494f-9985-03360eb3e35c")
+            xhr_calc.setRequestHeader("Access-Control-Allow-Origin", "https://coinmarketcap.com/")
+    
+            xhr_calc.send()
+            console.log("peticion enviada.")
+        }
     })
     
     //SI SE PULSA BOTÓN CANCELAR EL FORMULARIO SE RESTABLECE Y SE ANULA LA INSCRIPCIÓN
@@ -198,5 +234,10 @@ window.onload = function() {
         xhr_aceptar.send(JSON.stringify(cambio))
 
     })
+    cruz = document.querySelector(".closebtn")
+    cruz.addEventListener("click", ()=> {
+        cruz.parentElement.parentElement.style.display='none'
+    })
+    return 
 
 }
