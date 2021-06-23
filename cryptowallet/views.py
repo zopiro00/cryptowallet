@@ -3,8 +3,9 @@ import sqlite3
 from flask.json import jsonify
 from flask import render_template, request, url_for
 from http import HTTPStatus
+from datetime import date, datetime
 
-#Librerías o componentes que vienen de mos propios archivos
+#Librerías o componentes que vienen de mis propios archivos
 from cryptowallet.access_database import DBmanager
 from cryptowallet import app
 #He optado por separar la lista de cryptos que utilizo y que así sea fácil de cambiar.
@@ -36,6 +37,13 @@ def llamadaApi(amount,symbol,convert="EUR"):
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
 
+def ahora():
+    ahoraFecha = date.today()
+    ahoraHora = datetime.now()
+    ahora = {"fecha": ahoraFecha.strftime("%Y-%m-%d"),
+             "hora": ahoraHora.strftime("%H:%M:%S")
+            }
+    return ahora
 ###########################################################################################
 """ HASTA AQUÍ LOS DOCUMENTOS O FUNCINES QUE SIRVEN DE COMODÍN"""
 """ A PARTIR DE AQUÍ LAS FUNCIONES QUE ACTÚAN SEGÚN LLAMADOS DE FLASK"""
@@ -97,22 +105,31 @@ def detalleMovimiento(id=None):
 def status():
     try:
         if request.method == "GET":
-            inversiones = {"cryptos": {}, "actual": 0, "resultado": 0}
+            inversiones = {"cryptos": {}, "actual": 0, "resultado": 0, "uniCrypto": {}}
             for i in CRYPTOS:
                 invertido = dbManager.consultaUnaSQL( "SELECT moneda_from , sum(cantidad_from) FROM mis_movimientos WHERE moneda_from = ?", [i])
                 recuperado = dbManager.consultaUnaSQL( "SELECT moneda_to, sum(cantidad_to) FROM mis_movimientos WHERE moneda_to = ?", [i])
+                
                 # Este código funciona pero es feo. Habría que hacer algo con esos if horribles.
                 if invertido["moneda_from"] == None:
                     invertido["sum(cantidad_from)"] = 0
                 if recuperado["moneda_to"] == None:
                     recuperado["sum(cantidad_to)"] = 0
                 if i != "EUR":
+                    #Consigo el valor unitario de cada una de mis variables
+                    respuesta = llamadaApi(1, i)
+                    unaCrypto = respuesta["data"]["quote"]["EUR"]["price"]
+                    inversiones["uniCrypto"][i] = unaCrypto
+                    #Lo almaceno en mi base de datos
+                    dbManager.modificaTablaSQL( """INSERT INTO cryptos (fecha,hora,divisa,valor) VALUES (?,?,?,?,?,?)""",
+                                                [ahora()["fecha"], ahora()["hora"], i, unaCrypto])
+
+                    #Calculo totales en euros a partir del valor unitario.
                     total= recuperado["sum(cantidad_to)"]-invertido["sum(cantidad_from)"]
-                # Aquí me gustaría obtener los valores unitarios de las monedas que no tengo por si quiero invertir.
+                    total_eur = total * unaCrypto
                     if total != 0:
-                        respuesta = llamadaApi(total, i)
-                        inversiones["cryptos"][i]= {"total": total, "total_eur": respuesta["data"]["quote"]["EUR"]["price"]}
-                        inversiones["actual"] += respuesta["data"]["quote"]["EUR"]["price"]
+                        inversiones["cryptos"][i]= {"total": total, "total_eur": total_eur}
+                        inversiones["actual"] += total_eur
                 else:
                     total= float(invertido["sum(cantidad_from)"])-float(recuperado["sum(cantidad_to)"])
                     inversiones["EUR"]={"total": total, "total_eur": total}

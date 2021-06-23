@@ -12,6 +12,15 @@ const decimales = 4
 
 let losMovimientos
 let inv
+cotiza_old = {
+    "ADA": 0.9592481918037394,
+    "BNB": 221.57691721450587,
+    "BTC": 27214.3642554672,
+    "DOGE": 0.15948418787092625,
+    "ETH": 1573.9078558615574,
+    "EUR": 1,
+    "USDT": 0.8380291401629
+  }
 
 function ahora() {
     d = new Date()
@@ -40,6 +49,10 @@ function validar(consulta) {
         error.setAttribute("class","card error")
         error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Las divisas deben ser distintas</div>"
         document.querySelector("#errores").appendChild(error)
+        cruz = document.querySelector(".closebtn")
+        cruz.addEventListener("click", ()=> {
+        cruz.parentElement.parentElement.style.display='none'
+        })
         validado = false 
     }
     if (consulta.moneda_from != "EUR") {
@@ -126,7 +139,36 @@ function muestraStatus() {
             // Permite consultar los movimientos específicos de una divisa concreta
             fila.addEventListener("click", () => {access_database(i)})
         }
+        cotiza = inv.uniCrypto
+        for (const i in cotiza) {
+            div = document.createElement("div")
+            div.setAttribute("class", "col-sm")
+            card = document.createElement("div")
+            card.setAttribute("class", "card fluid")
 
+            if (cotiza[i] > cotiza_old[i]) {
+                flecha = "&uarr;"
+                color = "green"
+            } else if (cotiza[i] = cotiza_old[i]) {
+                flecha = "&harr;"
+                color = "white"
+            } else {
+                flecha = "&darr;"
+                color = "red"
+            }
+            porcentaje = ((cotiza[i] - cotiza_old[i]) / cotiza_old[i] *100).toFixed(1)
+            if (porcentaje > 0) {
+                porcentaje = `+${porcentaje}`}
+
+            card.innerHTML = `<div class="section">
+                                <h4 class="doc ${color}">${i} (${porcentaje}%)</h4>
+                                <p class="doc ${color}">${flecha} ${cotiza[i].toFixed(decimales)}€ </p>
+                                <h6 class="doc">${cotiza_old[i].toFixed(decimales)}€</h6>
+                              </div>`
+            div.appendChild(card)
+            document.querySelector("#cotiza").appendChild(div)
+            cotiza_old[i] = cotiza[i]
+        }
     }
 }
 
@@ -260,8 +302,3 @@ window.onload = function() {
 
 }
 
-/*
-cruz = document.querySelector(".closebtn")
-cruz.addEventListener("click", ()=> {
-    cruz.parentElement.parentElement.style.display='none'
-})*/

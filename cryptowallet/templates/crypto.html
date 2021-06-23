@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Wallet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/css/mini-dark.css">
     <link rel="stylesheet" href="static/css/styles.css">
     <script src="static/js/crypto.js"></script>
@@ -13,6 +16,13 @@
     <header>
         <h1>CRYPTO WALLET </h1>
     </header>
+    <section class="" id="divisas">
+        <div class="container">
+            <h2 class="title is-4">Cotización</h2>
+            <div class="row" id="cotiza">
+            </div>
+        </div>
+    </section>
     <section class="" id="principal">
         <div class="container">
             <div class="row">
@@ -35,19 +45,18 @@
                 </div>
                 <div class="col-sm-4" id="inversion">
                     <h2 class="title is-4">Inversion</h2>
-                    <table class="" id="status">
-                        <thead></thead>
+                    <table class="horizontal" id="status">
+                        <thead>
+                            <tr>
+                                <th><strong>Invertido:</strong></th>
+                                <th><strong>Valor....:</strong></th>
+                                <th><strong>Resultado:</strong></th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Invertido:</strong></td>
                                 <td id="d_invertido"></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Valor....  :</strong></td>
                                 <td id="d_actual"></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Resultado:</strong></td>
                                 <td id="d_resultado"></td>
                             </tr>
                         </tbody>

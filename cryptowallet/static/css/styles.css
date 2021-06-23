@@ -12,6 +12,13 @@ footer.fixed {
     display: none;
 }
 
+/*Color text*/
+.green {
+  color: palegreen;
+}
+.red {
+  color:crimson;
+}
 
 /* Boton cerrar */
 .closebtn {
@@ -29,3 +36,5 @@ footer.fixed {
   .closebtn:hover {
     color: black;
   }
+
+  
