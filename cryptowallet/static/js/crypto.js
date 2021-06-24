@@ -12,15 +12,6 @@ const decimales = 4
 
 let losMovimientos
 let inv
-cotiza_old = {
-    "ADA": 0.9592481918037394,
-    "BNB": 221.57691721450587,
-    "BTC": 27214.3642554672,
-    "DOGE": 0.15948418787092625,
-    "ETH": 1573.9078558615574,
-    "EUR": 1,
-    "USDT": 0.8380291401629
-  }
 
 function ahora() {
     d = new Date()
@@ -31,7 +22,6 @@ function ahora() {
 
     return hoy
 }
-
 function ocultar(operador) {
     b = document.querySelector(operador)
     b.setAttribute("class", "hidden")
@@ -140,30 +130,31 @@ function muestraStatus() {
             fila.addEventListener("click", () => {access_database(i)})
         }
         cotiza = inv.uniCrypto
+        cotiza_old = inv.oldUniCrypto
         for (const i in cotiza) {
             div = document.createElement("div")
             div.setAttribute("class", "col-sm")
             card = document.createElement("div")
             card.setAttribute("class", "card fluid")
 
-            if (cotiza[i] > cotiza_old[i]) {
+            if (cotiza[i] > cotiza_old[i].valor) {
                 flecha = "&uarr;"
                 color = "green"
-            } else if (cotiza[i] = cotiza_old[i]) {
+            } else if (cotiza[i] = cotiza_old[i].valor) {
                 flecha = "&harr;"
                 color = "white"
             } else {
                 flecha = "&darr;"
                 color = "red"
             }
-            porcentaje = ((cotiza[i] - cotiza_old[i]) / cotiza_old[i] *100).toFixed(1)
+            porcentaje = ((cotiza[i] - cotiza_old[i].valor) / cotiza_old[i].valor *100).toFixed(1)
             if (porcentaje > 0) {
                 porcentaje = `+${porcentaje}`}
 
             card.innerHTML = `<div class="section">
                                 <h4 class="doc ${color}">${i} (${porcentaje}%)</h4>
                                 <p class="doc ${color}">${flecha} ${cotiza[i].toFixed(decimales)}€ </p>
-                                <h6 class="doc">${cotiza_old[i].toFixed(decimales)}€</h6>
+                                <h6 class="doc">${cotiza_old[i].valor.toFixed(decimales)}€</h6>
                               </div>`
             div.appendChild(card)
             document.querySelector("#cotiza").appendChild(div)
@@ -195,6 +186,7 @@ function access_status() {
     xhr_status.send()
 }
 
+//Gestiona la respuesta de la API, incluye el valor recibido y cambia los botones permitiendo grabar el movimiento.
 function respuestaApi() {
     if (this.readyState === 4 && this.status === 200) {
         console.log(this.responseText)
@@ -235,6 +227,7 @@ function nuevo_movimiento() {
 xhr_calc = new XMLHttpRequest()
 xhr_aceptar = new XMLHttpRequest
 
+// Lo que ocurre al cargar la página.
 window.onload = function() {
     access_database()
     access_status()
