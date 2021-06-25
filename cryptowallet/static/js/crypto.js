@@ -13,6 +13,11 @@ const decimales = 4
 let losMovimientos
 let inv
 
+function reset(query) {
+    document.querySelector(query).innerHTML = ""
+    
+}
+
 function ahora() {
     d = new Date()
     sd = d.toISOString()
@@ -120,6 +125,8 @@ function muestraStatus() {
             console.log("falla la funcion status")
             return
         }
+        reset("#cotiza")
+        reset("#uni_status tbody")
 
         inv = estado.data
         document.querySelector("#d_invertido").innerHTML = `${formatN(inv.EUR.total)} €`

@@ -84,6 +84,16 @@ def procesaStatus():
 
     return inversiones
 
+def esValido(mf,cf,mt,ct):
+    esValido = True
+    if mf == mt:
+        esValido = False
+    if mf != "EUR" and cf < procesaStatus()["data"]["cryptos"][mf]["total"]:
+        esValido = False
+    if 0.000000001 < cf > 100000000:
+        esValido = False
+    return esValido 
+
 ###########################################################################################
 """ A PARTIR DE AQUÍ LAS FUNCIONES QUE ACTÚAN SEGÚN LLAMADOS DE FLASK"""
 ###########################################################################################
@@ -111,27 +121,36 @@ def movimientos(crypto = None):
 @app.route("/api/v1/movimiento/<int:id>", methods=["GET"])
 @app.route("/api/v1/movimiento", methods=["POST"])
 def detalleMovimiento(id=None):
-    try:
-        if request.method == "POST":
-            dbManager.modificaTablaSQL( """
-                                        INSERT INTO mis_movimientos (fecha,hora,moneda_from,cantidad_from,moneda_to,cantidad_to)
-                                        VALUES (?,?,?,?,?,?)""",
-                                        [request.json["fecha"],
-                                        request.json["hora"],
-                                        request.json["moneda_from"],
-                                        request.json["cantidad_from"],
-                                        request.json["moneda_to"],
-                                        request.json["cantidad_to"]])
-            return jsonify({"status": "success", "mensaje": "registro modificado"})
-        if request.method == "GET":
-            lista_uno = dbManager.consultaUnaSQL( "SELECT * FROM mis_movimientos WHERE id=?;", [id])
-            return jsonify({"status":   "success", "data": lista_uno})
-        else:
-            return jsonify({"status": "fail", "mensaje": "movimiento no encontrado"}), HTTPStatus.NOT_FOUND
-            
-    except sqlite3.Error as e:
-        print ("Error en SQL", e)
-        return jsonify({"status": "fail", "mensaje": "error tipo {}".format(e)}), HTTPStatus.BAD_REQUEST
+
+    moneda_from = request.json["moneda_from"]
+    moneda_to = request.json["moneda_to"]
+    cantidad_from = request.json["cantidad_from"]
+    cantidad_to = request.json["cantidad_to"]
+    validar = esValido(moneda_from,cantidad_from,moneda_to,cantidad_to)
+    if (validar):
+        try:
+            if request.method == "POST":
+                dbManager.modificaTablaSQL( """
+                                            INSERT INTO mis_movimientos (fecha,hora,moneda_from,cantidad_from,moneda_to,cantidad_to)
+                                            VALUES (?,?,?,?,?,?)""",
+                                            [ahora()["fecha"],
+                                            ahora()["hora"],
+                                            moneda_from,
+                                            cantidad_from,
+                                            moneda_to,
+                                            cantidad_to])
+                return jsonify({"status": "success", "mensaje": "registro modificado"})
+            if request.method == "GET":
+                lista_uno = dbManager.consultaUnaSQL( "SELECT * FROM mis_movimientos WHERE id=?;", [id])
+                return jsonify({"status":   "success", "data": lista_uno})
+            else:
+                return jsonify({"status": "fail", "mensaje": "movimiento no encontrado"}), HTTPStatus.NOT_FOUND
+                
+        except sqlite3.Error as e:
+            print ("Error en SQL", e)
+            return jsonify({"status": "fail", "mensaje": "error tipo {}".format(e)}), HTTPStatus.BAD_REQUEST
+    else:
+        return jsonify({"status": "fail", "mensaje": "los datos no son válidos"}), HTTPStatus.NOT_FOUND
         
 
 #Estado de la inversion
