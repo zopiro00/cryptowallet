@@ -14,6 +14,8 @@ Data is storage in a **SQlite Database**.
 
 The actual value of the CryptoCoin is obtained using the [API COINMARKET](https://pro-api.coinmarketcap.com)
 
+El logo está basado en un icono de **flaticon** que puede usarse citando a la [fuente](https://www.flaticon.com/)
+
 ## Instructions to install
 
 1. Instalar las librerías que aparecen en requirements.
@@ -71,4 +73,4 @@ CREATE TABLE "cryptos" (
 );
 ```
 
-4. En el archivo config definir la ruta a la base de datos.
+4. En el archivo config definir la ruta a la base de datos y tu contraseña para la API **COINMARKET**

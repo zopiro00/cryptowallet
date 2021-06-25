@@ -1060,7 +1060,7 @@ button.large, [type="button"].large, [type="submit"].large, [type="reset"].large
 }
 
 header {
-  height: 3.1875rem;
+  /*height: 3.1875rem;*/
   background: var(--header-back-color);
   color: var(--header-fore-color);
   border-bottom: 0.0625rem solid var(--header-border-color);
@@ -1333,7 +1333,7 @@ table th, table td {
 }
 
 table th {
-  text-align: left;
+  text-align: center;
   background: var(--table-head-back-color);
   color: var(--table-head-fore-color);
 }
@@ -1361,6 +1361,18 @@ table:not(.horizontal) tr {
 
 table:not(.horizontal) th, table:not(.horizontal) td {
   flex: 1 0 0%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table:not(.horizontal) .f2 {
+  flex: 2 0 0%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table:not(.horizontal) .f3{
+  flex: 3 0 0%;
   overflow: hidden;
   text-overflow: ellipsis;
 }

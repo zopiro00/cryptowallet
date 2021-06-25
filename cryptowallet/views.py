@@ -45,27 +45,32 @@ def ahora():
             }
     return ahora
 
+def convierteUn(i):
+    respuesta = llamadaApi(1, i)
+    unaCrypto = respuesta["data"]["quote"]["EUR"]["price"]
+    return unaCrypto
+
 def procesaStatus():
     inversiones = {"cryptos": {}, "actual": 0, "resultado": 0, "uniCrypto": {}, "oldUniCrypto": {}}
     for i in CRYPTOS:
         invertido = dbManager.consultaUnaSQL( "SELECT moneda_from , sum(cantidad_from) FROM mis_movimientos WHERE moneda_from = ?", [i])
         recuperado = dbManager.consultaUnaSQL( "SELECT moneda_to, sum(cantidad_to) FROM mis_movimientos WHERE moneda_to = ?", [i])
+
         oldUnaCrypto = dbManager.consultaUnaSQL( "SELECT valor FROM cryptos WHERE divisa = ? ORDER BY fecha DESC, hora DESC LIMIT 1", [i])
         inversiones["oldUniCrypto"][i] = oldUnaCrypto
+
         # Este código funciona pero es feo. Habría que hacer algo con esos if horribles.
         if invertido["moneda_from"] == None:
             invertido["sum(cantidad_from)"] = 0
         if recuperado["moneda_to"] == None:
             recuperado["sum(cantidad_to)"] = 0
+
         if i != "EUR":
-            #Consigo el valor unitario de cada una de mis variables
-            respuesta = llamadaApi(1, i)
-            unaCrypto = respuesta["data"]["quote"]["EUR"]["price"]
-            inversiones["uniCrypto"][i] = unaCrypto
-            #Lo almaceno en mi base de datos
+            unaCrypto = convierteUn(i)
             dbManager.modificaTablaSQL( """INSERT INTO cryptos (fecha,hora,divisa,valor) VALUES (?,?,?,?)""",
                                         [ahora()["fecha"], ahora()["hora"], i, unaCrypto])
-            #Calculo totales en euros a partir del valor unitario.
+            inversiones["uniCrypto"][i] = unaCrypto
+
             total= recuperado["sum(cantidad_to)"]-invertido["sum(cantidad_from)"]
             total_eur = total * unaCrypto
             if total != 0:

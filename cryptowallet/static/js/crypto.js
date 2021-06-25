@@ -65,6 +65,16 @@ function validar(consulta) {
     return validado
 }
 
+function formatN(cadena,s = ".",f = 8,d = 4) {
+    a = cadena.toString().split(s)
+    fl = a[0].length
+    a[1] ? a[1] : a[1] = "00"
+    dl = a[1].length 
+    if (fl > f) {fstr = a[0].slice(f-fl)} else {fstr = "&nbsp;".repeat(f-fl).concat(a[0])}
+    if (dl > d) {dstr = a[1].slice(0,d-dl)} else {dstr = a[1].concat(" ".repeat(Math.abs(d-dl)))}
+    aFormat =  fstr + "." + dstr
+    return aFormat
+}
 ////////////////////////////////////////////////////////////////////////////////
 /* Hasta Aquí las funciones comunes o utilidades para el código */
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,18 +92,18 @@ function muestraMovimientos() {
         losMovimientos = respuesta.movimientos
 
         const tbody= document.querySelector("#movimientos tbody")
-
+        tbody.innerHTML = ""
         for (let i=0; i < respuesta.movimientos.length; i++) {
             const movimiento = respuesta.movimientos[i]
             const fila = document.createElement("tr")
             
             const dentro = `
-                <td>${movimiento.fecha}</td>
-                <td>${movimiento.hora}</td>
-                <td>${movimiento.moneda_from ? divisas[movimiento.moneda_from] : "" }</td>
-                <td>${movimiento.cantidad_from.toFixed(decimales)}</td>
-                <td>${movimiento.moneda_to ? divisas[movimiento.moneda_to] : "" }</td>
-                <td>${movimiento.cantidad_to.toFixed(decimales)}</td>`
+                <td class="f1">${movimiento.fecha}</td>
+                <td class="f1">${movimiento.hora}</td>
+                <td class="f2">${movimiento.moneda_from ? divisas[movimiento.moneda_from] : "" }</td>
+                <td class="f3">${formatN(movimiento.cantidad_from)}</td>
+                <td class="f2">${movimiento.moneda_to ? divisas[movimiento.moneda_to] : "" }</td>
+                <td class="f3">${formatN(movimiento.cantidad_to,s = ".", f=8, d=4)}</td>`
             fila.innerHTML = dentro
             tbody.appendChild(fila)
         }
@@ -112,25 +122,26 @@ function muestraStatus() {
         }
 
         inv = estado.data
-        document.querySelector("#d_invertido").innerHTML = `${inv.EUR.total.toFixed(decimales)} €`
-        document.querySelector("#d_actual").innerHTML = `${inv.actual.toFixed(decimales)} €`
-        document.querySelector("#d_resultado").innerHTML = `${inv.resultado.toFixed(decimales)} €`
-        document.querySelector("#hora").innerHTML = `<strong>Fecha:</strong> ${ahora().fecha} <strong>Hora:</strong> ${ahora().hora}`
+        document.querySelector("#d_invertido").innerHTML = `${formatN(inv.EUR.total)} €`
+        document.querySelector("#d_actual").innerHTML = `${formatN(inv.actual)} €`
+        document.querySelector("#d_resultado").innerHTML = `${formatN(inv.resultado)} €`
+        document.querySelector("#fecha").innerHTML = `<h6><strong>Fecha:</strong> ${ahora().fecha}<br><strong>Hora:</strong> ${ahora().hora}</h6>`
+
         
         for (const i in inv.cryptos) {
             const fila = document.createElement("tr")
-            fila.innerHTML =`<td>${i}</td>
-                            <td>${inv.cryptos[i].total.toFixed(2)}</td>
-                            <td>${inv.cryptos[i].total_eur.toFixed(2)}</td>`
+            fila.innerHTML =`<td class="f1">${i}</td>
+                            <td class="f2">${formatN(inv.cryptos[i].total)}</td>
+                            <td class="f2">${formatN(inv.cryptos[i].total_eur)}</td>`
             uni_status = document.querySelector("#uni_status tbody")
             uni_status.appendChild(fila)
             mostrar("#uni_status")
             document.querySelector("#uni_status").setAttribute("class","hoverable")
-            // Permite consultar los movimientos específicos de una divisa concreta
             fila.addEventListener("click", () => {access_database(i)})
         }
         cotiza = inv.uniCrypto
         cotiza_old = inv.oldUniCrypto
+
         for (const i in cotiza) {
             div = document.createElement("div")
             div.setAttribute("class", "col-sm")
@@ -289,6 +300,17 @@ window.onload = function() {
         xhr_aceptar.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
         xhr_aceptar.send(JSON.stringify(cambio))
 
+    })
+
+    document.querySelector("#mostrarT").
+    addEventListener("click", (evento) => {
+        evento.preventDefault()
+        access_database()
+    })
+    document.querySelector("#refresh").
+    addEventListener("click", (evento) => {
+        evento.preventDefault()
+        access_status()
     })
 
     return 

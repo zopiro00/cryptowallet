@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Wallet</title>
+    <link rel="shortcut icon" href="static/image/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
@@ -14,7 +15,15 @@
 </head>
 <body>
     <header>
-        <h1>CRYPTO WALLET </h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-10">
+                    <h1>CRYPTO WALLET </h1> 
+                </div>
+                <div class="col-sm-2" id="fecha">
+                </div>
+            </div>
+        </div>
     </header>
     <section class="" id="divisas">
         <div class="container">
@@ -31,12 +40,12 @@
                     <table class="hoverable" id="movimientos">
                         <thead>
                             <tr>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>From</th>
-                                <th>Cantidad From</th>
-                                <th>To</th>
-                                <th>Cantidad To</th>
+                                <th class="f1">Fecha</th>
+                                <th class="f1">Hora</th>
+                                <th class="f2">From</th>
+                                <th class="f3">Cantidad From</th>
+                                <th class="f2">To</th>
+                                <th class="f3">Cantidad To</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,61 +64,64 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td id="d_invertido"></td>
-                                <td id="d_actual"></td>
-                                <td id="d_resultado"></td>
+                                <td class="center" id="d_invertido"></td>
+                                <td class="center" id="d_actual"></td>
+                                <td class="center" id="d_resultado"></td>
                             </tr>
                         </tbody>
                     </table>
                     <table class="hidden" id="uni_status">
                         <thead>
                             <tr>
-                                <th>Divisa</th>
-                                <th>En Cryptos</th>
-                                <th>En Euros</th>
+                                <th class="f1">Divisa</th>
+                                <th class="f2">En Cryptos</th>
+                                <th class="f2">En Euros</th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-                    <h6 id="hora"></h6>
+                    <button class="inverse" id="mostrarT">Mostrar todos</button>
+                    <button class="inverse" id="refresh">Refrescar</button>
                 </div>
             </div>
         </div>
         <div class="container">
             <div class="row">
-                <form class="col-sm-12">
-                    <label>From</label>
-                    <select name="moneda_from" id="moneda_from" placeholder="required">
-                        <option value="EUR">Euro(EUR)</option>
-                        <option value="BTC">Bitcoin(BTC)</option>
-                        <option value="ETH">Ethereum(ETH)</option>
-                        <option value="DOGE">Dodgecoin(DOGE)</option>
-                        <option value="BNB">Binance(BNB)</option>
-                        <option value="ADA">Cardano(ADA)</option>
-                        <option value="USDT">Tether(USDT)</option>
-                    </select>
-                    <label>Cantidad</label>
-                    <input name="cantidad_from" id="cantidad_from" placeholder="required">
-                    <label>To</label>
-                    <select name="moneda_to" id="moneda_to">
-                        <option value="EUR">Euro(EUR)</option>
-                        <option value="BTC">Bitcoin(BTC)</option>
-                        <option value="ETH">Ethereum(ETH)</option>
-                        <option value="DOGE">Dodgecoin(DOGE)</option>
-                        <option value="BNB">Binance(BNB)</option>
-                        <option value="ADA">Cardano(ADA)</option>
-                        <option value="USDT">Tether(USDT)</option>
-                    </select>
-                    <label>Cantidad</label>
-                    <input name="cantidad_to" id="cantidad_to" disabled placeholder="pulsa refrescar para mostrar">
-                    <div id="botonera">
-                        <button class="inverse" id="calcular">Calcular</button>
-                        <button class="inverse hidden" id="aceptar">Aceptar</button>
-                        <button class="inverse hidden" id="cancelar">Cancelar</button>
-                    </div>
-                    <div id="errores"></div>
-                </form>
+                <div class="col-sm-12">
+                    <form class="col-sm-12">
+                        <label>From</label>
+                        <select name="moneda_from" id="moneda_from" placeholder="required">
+                            <option value="EUR">Euro(EUR)</option>
+                            <option value="BTC">Bitcoin(BTC)</option>
+                            <option value="ETH">Ethereum(ETH)</option>
+                            <option value="DOGE">Dodgecoin(DOGE)</option>
+                            <option value="BNB">Binance(BNB)</option>
+                            <option value="ADA">Cardano(ADA)</option>
+                            <option value="USDT">Tether(USDT)</option>
+                        </select>
+                        <label>Cantidad</label>
+                        <input name="cantidad_from" id="cantidad_from" placeholder="required">
+                        <label>To</label>
+                        <select name="moneda_to" id="moneda_to">
+                            <option value="EUR">Euro(EUR)</option>
+                            <option value="BTC">Bitcoin(BTC)</option>
+                            <option value="ETH">Ethereum(ETH)</option>
+                            <option value="DOGE">Dodgecoin(DOGE)</option>
+                            <option value="BNB">Binance(BNB)</option>
+                            <option value="ADA">Cardano(ADA)</option>
+                            <option value="USDT">Tether(USDT)</option>
+                        </select>
+                        <label>Cantidad</label>
+                        <input name="cantidad_to" id="cantidad_to" disabled placeholder="pulsa refrescar para mostrar">
+                        <div id="botonera">
+                            <button class="inverse" id="calcular">Calcular</button>
+                            <button class="inverse hidden" id="aceptar">Aceptar</button>
+                            <button class="inverse hidden" id="cancelar">Cancelar</button>
+                        </div>
+                        <div id="errores"></div>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
