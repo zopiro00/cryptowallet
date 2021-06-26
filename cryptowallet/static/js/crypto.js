@@ -1,12 +1,6 @@
-const divisas = {
-    EUR: "Euro(EUR)",
-    BTC: "Bitcoin(BTC)",
-    ETH: "Ethereum(ETH)",
-    DOGE: "Dodgecoin(DOGE)",
-    BNB: "Binance(BNB)",
-    ADA: "Cardano(ADA)",
-    USDT: "Tether(USDT)"
-}
+
+
+import { divisas, COINMARKET_KEY} from "./modules/config.js"
 
 const decimales = 4
 
@@ -19,8 +13,8 @@ function reset(query) {
 }
 
 function ahora() {
-    d = new Date()
-    sd = d.toISOString()
+    var d = new Date()
+    var sd = d.toISOString()
     const hoy = {}
     hoy.hora = sd.slice(11,19)
     hoy.fecha = sd.slice(0,10)
@@ -28,17 +22,28 @@ function ahora() {
     return hoy
 }
 function ocultar(operador) {
-    b = document.querySelector(operador)
-    b.setAttribute("class", "hidden")
+    var o = document.querySelector(operador)
+    o.setAttribute("class", "hidden")
 }
 function mostrar(operador) {
-    b = document.querySelector(operador)
+    var b = document.querySelector(operador)
     b.removeAttribute("class")
     b.setAttribute("class", "inverse")
 }
 
 function validar(consulta) {
-    validado = true
+    var validado = true
+    if (typeof consulta.cantidad_from !== "number") {
+        var error = document.createElement("div")
+        error.setAttribute("class","card error")
+        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Sólo de aceptan carácteres numéricos en el campo cantidad.</div>"
+        document.querySelector("#errores").appendChild(error)
+        var cruz = document.querySelector(".closebtn")
+        cruz.addEventListener("click", ()=> {
+        cruz.parentElement.parentElement.style.display='none'
+        })
+        validado = false 
+    }
     if (consulta.moneda_from == consulta.moneda_to) {
         error = document.createElement("div")
         error.setAttribute("class","card error")
@@ -71,14 +76,24 @@ function validar(consulta) {
 }
 
 function formatN(cadena,s = ".",f = 8,d = 4) {
-    a = cadena.toString().split(s)
-    fl = a[0].length
+    var a = cadena.toString().split(s)
+    var fl = a[0].length
     a[1] ? a[1] : a[1] = "00"
-    dl = a[1].length 
-    if (fl > f) {fstr = a[0].slice(f-fl)} else {fstr = "&nbsp;".repeat(f-fl).concat(a[0])}
-    if (dl > d) {dstr = a[1].slice(0,d-dl)} else {dstr = a[1].concat(" ".repeat(Math.abs(d-dl)))}
-    aFormat =  fstr + "." + dstr
+    var dl = a[1].length 
+    if (fl > f) {var fstr = a[0].slice(f-fl)} else {var fstr = "&nbsp;".repeat(f-fl).concat(a[0])}
+    if (dl > d) {var dstr = a[1].slice(0,d-dl)} else {var dstr = a[1].concat(" ".repeat(Math.abs(d-dl)))}
+    var aFormat =  fstr + "." + dstr
     return aFormat
+}
+
+function desplegable (nombre, objeto) {
+    const selector = document.querySelector(nombre)
+    for (const i in objeto) {
+        var option = document.createElement("option")
+        option.setAttribute("value", i)
+        option.innerHTML = objeto[i]
+        selector.appendChild(option)
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////
 /* Hasta Aquí las funciones comunes o utilidades para el código */
@@ -101,7 +116,9 @@ function muestraMovimientos() {
         for (let i=0; i < respuesta.movimientos.length; i++) {
             const movimiento = respuesta.movimientos[i]
             const fila = document.createElement("tr")
-            
+            let s 
+            let f
+            let d
             const dentro = `
                 <td class="f1">${movimiento.fecha}</td>
                 <td class="f1">${movimiento.hora}</td>
@@ -140,32 +157,32 @@ function muestraStatus() {
             fila.innerHTML =`<td class="f1">${i}</td>
                             <td class="f2">${formatN(inv.cryptos[i].total)}</td>
                             <td class="f2">${formatN(inv.cryptos[i].total_eur)}</td>`
-            uni_status = document.querySelector("#uni_status tbody")
+            const uni_status = document.querySelector("#uni_status tbody")
             uni_status.appendChild(fila)
             mostrar("#uni_status")
             document.querySelector("#uni_status").setAttribute("class","hoverable")
             fila.addEventListener("click", () => {access_database(i)})
         }
-        cotiza = inv.uniCrypto
-        cotiza_old = inv.oldUniCrypto
+        var cotiza = inv.uniCrypto
+        var cotiza_old = inv.oldUniCrypto
 
         for (const i in cotiza) {
-            div = document.createElement("div")
+            const div = document.createElement("div")
             div.setAttribute("class", "col-sm")
-            card = document.createElement("div")
+            const card = document.createElement("div")
             card.setAttribute("class", "card fluid")
 
             if (cotiza[i] > cotiza_old[i].valor) {
-                flecha = "&uarr;"
-                color = "green"
+                var flecha = "&uarr;"
+                var color = "green"
             } else if (cotiza[i] = cotiza_old[i].valor) {
-                flecha = "&harr;"
-                color = "white"
+                var flecha = "&harr;"
+                var color = "white"
             } else {
-                flecha = "&darr;"
-                color = "red"
+                var flecha = "&darr;"
+                var color = "red"
             }
-            porcentaje = ((cotiza[i] - cotiza_old[i].valor) / cotiza_old[i].valor *100).toFixed(1)
+            var porcentaje = ((cotiza[i] - cotiza_old[i].valor) / cotiza_old[i].valor *100).toFixed(1)
             if (porcentaje > 0) {
                 porcentaje = `+${porcentaje}`}
 
@@ -182,7 +199,7 @@ function muestraStatus() {
 }
 
 // Obtiene los movimientos a partir del servidor (el nuestro)
-xhr = new XMLHttpRequest()
+const xhr = new XMLHttpRequest()
 function access_database(crypto = undefined) {
     if (crypto == undefined) {
         xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
@@ -197,7 +214,7 @@ function access_database(crypto = undefined) {
 }
 
 //Obtiene el valor de la inversión actual consultando a la api externa.
-xhr_status = new XMLHttpRequest()
+const xhr_status = new XMLHttpRequest()
 function access_status() {
     xhr_status.open("GET", `http://localhost:5000/api/v1/status`, true)
     xhr_status.onload = muestraStatus
@@ -242,13 +259,15 @@ function nuevo_movimiento() {
     access_status()
 }
 
-xhr_calc = new XMLHttpRequest()
-xhr_aceptar = new XMLHttpRequest
+const xhr_calc = new XMLHttpRequest()
+const xhr_aceptar = new XMLHttpRequest
 
 // Lo que ocurre al cargar la página.
 window.onload = function() {
     access_database()
     access_status()
+    desplegable("#moneda_from",divisas)
+    desplegable("#moneda_to",divisas)
 
     //funcion asincrona, lo que va a pasar cuando la api externa responda
     xhr_calc.onload = respuestaApi
@@ -270,7 +289,7 @@ window.onload = function() {
         if (validar(consulta)) {
             xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
     
-            xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", "8b1effc1-2b33-494f-9985-03360eb3e35c")
+            xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", COINMARKET_KEY)
             xhr_calc.setRequestHeader("Access-Control-Allow-Origin", "https://coinmarketcap.com/")
     
             xhr_calc.send()

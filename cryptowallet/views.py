@@ -86,13 +86,18 @@ def procesaStatus():
 
 def esValido(mf,cf,mt,ct):
     esValido = True
-    if mf == mt:
+    # El try es por si alguien enviara algo que no es número.
+    try: 
+        if mf == mt:
+            esValido = False
+        if mf != "EUR" and float(cf) < procesaStatus()["data"]["cryptos"][mf]["total"]:
+            esValido = False
+        if 0.000000001 < float(cf) > 100000000:
+            esValido = False
+        return esValido
+    except:
         esValido = False
-    if mf != "EUR" and cf < procesaStatus()["data"]["cryptos"][mf]["total"]:
-        esValido = False
-    if 0.000000001 < cf > 100000000:
-        esValido = False
-    return esValido 
+        return  esValido
 
 ###########################################################################################
 """ A PARTIR DE AQUÍ LAS FUNCIONES QUE ACTÚAN SEGÚN LLAMADOS DE FLASK"""

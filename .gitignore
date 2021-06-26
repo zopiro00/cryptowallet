@@ -2,6 +2,7 @@ venv/
 .env
 data/
 config.py
+config.js
 __pycache__/
 info-util.txt
 test.py

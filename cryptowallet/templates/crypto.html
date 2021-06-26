@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/css/mini-dark.css">
     <link rel="stylesheet" href="static/css/styles.css">
-    <script src="static/js/crypto.js"></script>
+    <script src="static/js/crypto.js" type="module"></script>
 </head>
 <body>
     <header>
@@ -49,6 +49,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!--A rellenar desde js.-->
                         </tbody>
                     </table>
                 </div>
@@ -79,6 +80,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!--A rellenar desde js.-->
                         </tbody>
                     </table>
                     <button class="inverse" id="mostrarT">Mostrar todos</button>
@@ -92,25 +94,13 @@
                     <form class="col-sm-12">
                         <label>From</label>
                         <select name="moneda_from" id="moneda_from" placeholder="required">
-                            <option value="EUR">Euro(EUR)</option>
-                            <option value="BTC">Bitcoin(BTC)</option>
-                            <option value="ETH">Ethereum(ETH)</option>
-                            <option value="DOGE">Dodgecoin(DOGE)</option>
-                            <option value="BNB">Binance(BNB)</option>
-                            <option value="ADA">Cardano(ADA)</option>
-                            <option value="USDT">Tether(USDT)</option>
+                            <!--Este select se rellena desde js en base a las variables existentes.-->
                         </select>
                         <label>Cantidad</label>
                         <input name="cantidad_from" id="cantidad_from" placeholder="required">
                         <label>To</label>
                         <select name="moneda_to" id="moneda_to">
-                            <option value="EUR">Euro(EUR)</option>
-                            <option value="BTC">Bitcoin(BTC)</option>
-                            <option value="ETH">Ethereum(ETH)</option>
-                            <option value="DOGE">Dodgecoin(DOGE)</option>
-                            <option value="BNB">Binance(BNB)</option>
-                            <option value="ADA">Cardano(ADA)</option>
-                            <option value="USDT">Tether(USDT)</option>
+                            <!--Este select se rellena desde js en base a las variables existentes.-->
                         </select>
                         <label>Cantidad</label>
                         <input name="cantidad_to" id="cantidad_to" disabled placeholder="pulsa refrescar para mostrar">

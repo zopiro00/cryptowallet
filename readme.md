@@ -2,7 +2,7 @@
 
 A simple website to track your investments in cryptocurrencies.
 
-Designed by Hugo F. García as a final project for the Keepcoding bootcamp *aprende a programar desde 0*
+Designed by Hugo F. García as a final project for the **Keepcoding** bootcamp *aprende a programar desde 0*
 Date 17/06/2021
 
 ## Technology
@@ -20,7 +20,7 @@ El logo está basado en un icono de **flaticon** que puede usarse citando a la [
 
 1. Instalar las librerías que aparecen en requirements.
 2. Cambiar el documento .envtemplate a .env y sustituir su contenido.
-3. En la carpeta migrations crear una base de datos con **2 TABLAS**. La prueba de esta aplicación se ha hecho mediante una base sqlite. 
+3. En la carpeta migrations crear una base de datos con **2** tablas. La prueba de esta aplicación se ha hecho mediante una base sqlite. 
 
 #### TABLA 1 mis_movimientos
 Guarda las transacciones realizadas por el usuario.
@@ -73,4 +73,10 @@ CREATE TABLE "cryptos" (
 );
 ```
 
-4. En el archivo config definir la ruta a la base de datos y tu contraseña para la API **COINMARKET**
+4. Configura tu aplicación:
+	1. Crea un archivo en la raiz **config.py**, puedes usar **config_template.py** como referencia.
+	  Aquí tendrás que incluir tu **clave KEY** de COINMARKET y las **divisas** con las que deseas trabajar.
+	2. Crea un archivo **config.py** en */cryptowallet/static/js/modules*. Puedes usar **config_template.js** como plantilla.
+	  Aquí tendrás que incluir tu clave KEY (¡OJO! Desde aquí es visible  y se ha dejado solo como ejemplo por motivos académicos.)
+	  y las **divisas** con las que deseas trabajar. Importante seguir el mismo esquema y usar las mismas divisas si no quieres que se
+	  produzcan errores.
