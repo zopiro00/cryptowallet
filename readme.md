@@ -3,14 +3,14 @@
 A simple website to track your investments in cryptocurrencies.
 
 Designed by Hugo F. García as a final project for the **Keepcoding** bootcamp *aprende a programar desde 0*
-Date 17/06/2021
+Date 17/06/2021 - 05/07/2021
 
 ## Technology
-Back-end is based in **Python flask**.
+Back-end is based in **Python flask**
 Front-end is made in **Vanilla Javascript**
 
 **CSS** is based in **mini-css** but some minor changes has been made.
-Data is storage in a **SQlite Database**.
+Data is storage in a **SQlite Database**
 
 The actual value of the CryptoCoin is obtained using the [API COINMARKET](https://pro-api.coinmarketcap.com)
 
@@ -89,3 +89,8 @@ El logo está basado en un icono de **flaticon** que puede usarse citando a la [
 	  produzcan errores.
 
 5. Inicializa la aplicación **flask run**. Debería de funcionar...
+
+6. Mejoras o posibles cambios
+	- Crear una gráfica que represente los valores que se van almacenando.
+	- Crear un botón que permita modificar o borrar movimientos (se supone que es para almacenar y no una app de compra directa)
+	- Incluir otras Apis para mostar noticias relacionadas con los cambios de cotización.

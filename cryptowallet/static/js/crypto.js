@@ -236,7 +236,8 @@ function respuestaApi() {
         // incluir el valor de la moneda en el form
         var moneda = document.querySelector("#moneda_to").value
         var cantidad_to = document.querySelector("#cantidad_to")
-        var quote =  respuesta.data.quote[moneda].price
+        // codigo alternativo: var quote = respuesta.mensaje.data.quote[moneda].price
+        var quote =  respuesta.mensaje
         cantidad_to.setAttribute("placeholder",quote)
 
         // Cambio los botones inferiores.
@@ -280,20 +281,31 @@ window.onload = function() {
         evento.preventDefault()
         //Reset
         document.querySelector("#errores").innerHTML = ""
-        // var fail = false
 
+        // Aquí se definen los campos que se quieren tratar
+        const m_from = document.querySelector("#moneda_from")
+        const c_from = document.querySelector("#cantidad_from")
+        const m_to = document.querySelector("#moneda_to")
+
+        // Aquí se bloquean los cambios para evitar que se modifiquen después de la validación.
+        m_from.setAttribute("disabled","")
+        c_from.setAttribute("disabled","")
+        m_to.setAttribute("disabled","")
+
+        // Preparar envío de consulta
         const consulta = {}
-        consulta.moneda_from = document.querySelector("#moneda_from").value
-        consulta.cantidad_from = document.querySelector("#cantidad_from").value
-        consulta.moneda_to = document.querySelector("#moneda_to").value
+        consulta.moneda_from = m_from.value
+        consulta.cantidad_from = c_from.value
+        consulta.moneda_to = m_to.value
 
         //Comprueba si las divisas son iguales.
         if (validar(consulta)) {
-            xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=${consulta.moneda_from}&convert=${consulta.moneda_to}`)
-    
+            xhr_calc.open("GET", `/api/v1/convertir/${consulta.cantidad_from}/${consulta.moneda_from}/${consulta.moneda_to}`)
+            /*
+            xhr_calc.open("GET", `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?amount=${consulta.cantidad_from}&symbol=&convert=`)
             xhr_calc.setRequestHeader("X-CMC_PRO_API_KEY", COINMARKET_KEY)
             xhr_calc.setRequestHeader("Access-Control-Allow-Origin", "https://coinmarketcap.com/")
-    
+            */
             xhr_calc.send()
             console.log("peticion enviada.")
         }

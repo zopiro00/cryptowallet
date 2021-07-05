@@ -173,3 +173,13 @@ def status():
         print ("Error en SQL", e)
         return jsonify({"status": "fail", "mensaje": "error tipo {}".format(e)}), HTTPStatus.BAD_REQUEST
 
+@app.route('/api/v1/convertir/<cantidad>/<_de>/<_para>', methods=["GET"])
+def convertir(cantidad, _de , _para):
+    try:
+       conversion = llamadaApi(cantidad, _de, _para)
+       ##Antes se enviaba la respuesta completa de la Api, aquí se ha optado por mandarla limpia. No se si es una solución más eficiente.
+       return jsonify({"status": "success", "mensaje": conversion["data"]["quote"][_para]["price"]})
+    except:
+        print ("Error en SQL", e)
+        return jsonify({"status": "fail", "mensaje": "error al consultar la api"}), HTTPStatus.BAD_REQUEST
+   
