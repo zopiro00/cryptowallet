@@ -1,11 +1,12 @@
 
 
-import { divisas, COINMARKET_KEY} from "./modules/config.js"
+import { divisas, COINMARKET_KEY, servidor} from "./modules/config.js"
 
 const decimales = 4
 
 let losMovimientos
 let inv
+let quote
 
 function reset(query) {
     document.querySelector(query).innerHTML = ""
@@ -33,8 +34,9 @@ function mostrar(operador) {
 
 function validar(consulta) {
     var validado = true
-    if (typeof consulta.cantidad_from !== "number") {
-        var error = document.createElement("div")
+    var error
+    if (Number(consulta.cantidad_from) == NaN) {
+        error = document.createElement("div")
         error.setAttribute("class","card error")
         error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Sólo de aceptan carácteres numéricos en el campo cantidad.</div>"
         document.querySelector("#errores").appendChild(error)
@@ -56,7 +58,7 @@ function validar(consulta) {
         validado = false 
     }
     if (consulta.moneda_from != "EUR") {
-        saldo = inv.cryptos[consulta.moneda_from].total
+        var saldo = inv.cryptos[consulta.moneda_from].total
         if (consulta.cantidad_from > saldo) {
             error = document.createElement("div")
             error.setAttribute("class","card error")
@@ -147,7 +149,7 @@ function muestraStatus() {
 
         inv = estado.data
         document.querySelector("#d_invertido").innerHTML = `${formatN(inv.EUR.total)} €`
-        document.querySelector("#d_actual").innerHTML = `${formatN(inv.actual)} €`
+        document.querySelector("#d_actual").innerHTML = `${formatN(inv.valor_crypto)} €`
         document.querySelector("#d_resultado").innerHTML = `${formatN(inv.resultado)} €`
         document.querySelector("#fecha").innerHTML = `<h6><strong>Fecha:</strong> ${ahora().fecha}<br><strong>Hora:</strong> ${ahora().hora}</h6>`
 
@@ -202,10 +204,10 @@ function muestraStatus() {
 const xhr = new XMLHttpRequest()
 function access_database(crypto = undefined) {
     if (crypto == undefined) {
-        xhr.open("GET", `http://localhost:5000/api/v1/movimientos`, true)
+        xhr.open("GET", `http://${servidor}/api/v1/movimientos`, true)
     }
     else {
-        xhr.open("GET", `http://localhost:5000/api/v1/movimientos/${crypto}`, true)
+        xhr.open("GET", `http://${servidor}/api/v1/movimientos/${crypto}`, true)
     }
     
     
@@ -216,7 +218,7 @@ function access_database(crypto = undefined) {
 //Obtiene el valor de la inversión actual consultando a la api externa.
 const xhr_status = new XMLHttpRequest()
 function access_status() {
-    xhr_status.open("GET", `http://localhost:5000/api/v1/status`, true)
+    xhr_status.open("GET", `http://${servidor}/api/v1/status`, true)
     xhr_status.onload = muestraStatus
     xhr_status.send()
 }
@@ -232,9 +234,9 @@ function respuestaApi() {
             return
         }
         // incluir el valor de la moneda en el form
-        moneda = document.querySelector("#moneda_to").value
-        cantidad_to = document.querySelector("#cantidad_to")
-        quote =  respuesta.data.quote[moneda].price
+        var moneda = document.querySelector("#moneda_to").value
+        var cantidad_to = document.querySelector("#cantidad_to")
+        var quote =  respuesta.data.quote[moneda].price
         cantidad_to.setAttribute("placeholder",quote)
 
         // Cambio los botones inferiores.
@@ -278,7 +280,7 @@ window.onload = function() {
         evento.preventDefault()
         //Reset
         document.querySelector("#errores").innerHTML = ""
-        fail = false
+        // var fail = false
 
         const consulta = {}
         consulta.moneda_from = document.querySelector("#moneda_from").value
@@ -310,17 +312,17 @@ window.onload = function() {
     // SI SE PULSA ACEPTAR EL MOVIMIENTO DEBE ENVIARSE AL SERVIDOR PARA QUE LO PROCESE Y LO INCLUYA EN EL JQUERY.
     document.querySelector("#aceptar")
     .addEventListener("click", () => {
-        const cambio = {}
+        var cambio = {}
         //Valores del formulario
         cambio.moneda_from = document.querySelector("#moneda_from").value
         cambio.cantidad_from = document.querySelector("#cantidad_from").value
         cambio.moneda_to = document.querySelector("#moneda_to").value
-        cambio.cantidad_to = quote
+        cambio.cantidad_to = document.querySelector("#cantidad_to").getAttribute("placeholder")
         //Hora en que se realiza la transacción
         cambio.hora = ahora().hora
         cambio.fecha = ahora().fecha
 
-        xhr_aceptar.open("POST", "http://localhost:5000/api/v1/movimiento", true)
+        xhr_aceptar.open("POST", `http://${servidor}/api/v1/movimiento`, true)
         xhr_aceptar.onload = nuevo_movimiento
 
         xhr_aceptar.setRequestHeader("Content-Type", "application/json;charset=UTF-8")

@@ -51,7 +51,7 @@ def convierteUn(i):
     return unaCrypto
 
 def procesaStatus():
-    inversiones = {"cryptos": {}, "actual": 0, "resultado": 0, "uniCrypto": {}, "oldUniCrypto": {}}
+    inversiones = {"cryptos": {}, "valor_crypto": 0, "resultado": 0, "uniCrypto": {}, "oldUniCrypto": {}}
     for i in CRYPTOS:
         invertido = dbManager.consultaUnaSQL( "SELECT moneda_from , sum(cantidad_from) FROM mis_movimientos WHERE moneda_from = ?", [i])
         recuperado = dbManager.consultaUnaSQL( "SELECT moneda_to, sum(cantidad_to) FROM mis_movimientos WHERE moneda_to = ?", [i])
@@ -75,22 +75,23 @@ def procesaStatus():
             total_eur = total * unaCrypto
             if total != 0:
                 inversiones["cryptos"][i]= {"total": total, "total_eur": total_eur}
-                inversiones["actual"] += total_eur
+                inversiones["valor_crypto"] += total_eur
         else:
             total= float(invertido["sum(cantidad_from)"])-float(recuperado["sum(cantidad_to)"])
-            inversiones["EUR"]={"total": total, "total_eur": total}
+            inversiones["EUR"]={"total": total, "total_eur": total, "total_f": invertido["sum(cantidad_from)"]}
 
-        inversiones["resultado"] += (inversiones["EUR"]["total_eur"] - inversiones["actual"])
+        inversiones["resultado"] = inversiones["EUR"]["total_f"] + (inversiones["EUR"]["total_eur"] + inversiones["valor_crypto"])
 
     return inversiones
 
 def esValido(mf,cf,mt,ct):
     esValido = True
+
     # El try es por si alguien enviara algo que no es número.
     try: 
         if mf == mt:
             esValido = False
-        if mf != "EUR" and float(cf) < procesaStatus()["data"]["cryptos"][mf]["total"]:
+        if mf != "EUR" and float(cf) > procesaStatus()["data"]["cryptos"][mf]["total"]:
             esValido = False
         if 0.000000001 < float(cf) > 100000000:
             esValido = False
@@ -126,13 +127,15 @@ def movimientos(crypto = None):
 @app.route("/api/v1/movimiento/<int:id>", methods=["GET"])
 @app.route("/api/v1/movimiento", methods=["POST"])
 def detalleMovimiento(id=None):
-
-    moneda_from = request.json["moneda_from"]
-    moneda_to = request.json["moneda_to"]
-    cantidad_from = request.json["cantidad_from"]
-    cantidad_to = request.json["cantidad_to"]
-    validar = esValido(moneda_from,cantidad_from,moneda_to,cantidad_to)
-    if (validar):
+    if request.json:
+        moneda_from = request.json["moneda_from"]
+        moneda_to = request.json["moneda_to"]
+        cantidad_from = request.json["cantidad_from"]
+        cantidad_to = request.json["cantidad_to"]
+        validar = esValido(moneda_from,float(cantidad_from),moneda_to,float(cantidad_to))
+    else:
+        return jsonify({"status": "fail", "mensaje": "No se han reciido datos que procesar"}), HTTPStatus.NOT_FOUND
+    if validar:
         try:
             if request.method == "POST":
                 dbManager.modificaTablaSQL( """
@@ -147,7 +150,7 @@ def detalleMovimiento(id=None):
                 return jsonify({"status": "success", "mensaje": "registro modificado"})
             if request.method == "GET":
                 lista_uno = dbManager.consultaUnaSQL( "SELECT * FROM mis_movimientos WHERE id=?;", [id])
-                return jsonify({"status":   "success", "data": lista_uno})
+                return jsonify({"status": "success", "data": lista_uno})
             else:
                 return jsonify({"status": "fail", "mensaje": "movimiento no encontrado"}), HTTPStatus.NOT_FOUND
                 

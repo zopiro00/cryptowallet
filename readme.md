@@ -19,64 +19,73 @@ El logo está basado en un icono de **flaticon** que puede usarse citando a la [
 ## Instructions to install
 
 1. Instalar las librerías que aparecen en requirements.
-2. Cambiar el documento .envtemplate a .env y sustituir su contenido.
-3. En la carpeta migrations crear una base de datos con **2** tablas. La prueba de esta aplicación se ha hecho mediante una base sqlite. 
 
-#### TABLA 1 mis_movimientos
-Guarda las transacciones realizadas por el usuario.
+``` pip install -r requirements.txt ```
 
-Los campos a incluir son los  siguientes:
-- id
-- fecha
-- hora
-- moneda_from
-- cantidad_from
-- moneda_to
-- cantidad_to
+2. Renombrar el documento **.envtemplate** a **.env** y sustituir su contenido.
 
-Un ejemplo del código SQL sería el siguiente:
-```
-CREATE TABLE "mis_movimientos" (
-	"id"	INTEGER,
-	"fecha"	TEXT NOT NULL,
-	"hora"	TEXT NOT NULL,
-	"moneda_from"	TEXT NOT NULL,
-	"cantidad_from"	NUMERIC NOT NULL,
-	"moneda_to"	TEXT NOT NULL,
-	"cantidad_to"	NUMERIC NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT)
-);
-``` 
+3. En la carpeta migrations crear una base de datos con **2** tablas. La prueba de esta aplicación se ha hecho mediante una base sqlite3. Tú puedes usar otro
+   Si te parece mejor. Lo importante es que la base de datos esté guardada así **data/movimientos.db**
 
-#### TABLA 2 cryptos
-Guarda el valor de las divisas cada vez que se refresca el status.
-Sirve para 2 cosas: Crear un histórico sin consultar a la API y ofrecer al usuario una comparación
-entre el valor actual y el último valor consultado.
+	##### 3.1. TABLA 1 mis_movimientos
+	Guarda las transacciones realizadas por el usuario.
 
-Los campos a introducir serían:
+	Los campos a incluir son los  siguientes:
+	- id
+	- fecha
+	- hora
+	- moneda_from
+	- cantidad_from
+	- moneda_to
+	- cantidad_to
 
-- id
-- divisa
-- valor
-- fecha
-- hora
+	Un ejemplo del código SQL sería el siguiente:
+	```
+	CREATE TABLE "mis_movimientos" (
+		"id"	INTEGER,
+		"fecha"	TEXT NOT NULL,
+		"hora"	TEXT NOT NULL,
+		"moneda_from"	TEXT NOT NULL,
+		"cantidad_from"	NUMERIC NOT NULL,
+		"moneda_to"	TEXT NOT NULL,
+		"cantidad_to"	NUMERIC NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT)
+	);
+	``` 
 
-Un ejemplo del código SQL sería el siguiente:
-```
-CREATE TABLE "cryptos" (
-	"id"	INTEGER,
-	"divisa"	TEXT NOT NULL,
-	"valor"	INTEGER NOT NULL,
-	"fecha"	TEXT NOT NULL,
-	"hora"	TEXT NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT)
-);
-```
+	##### 3.2. TABLA 2 cryptos
+	Guarda el valor de las divisas cada vez que se refresca el status.
+	Sirve para 2 cosas: Crear un histórico sin consultar a la API y ofrecer al usuario una comparación
+	entre el valor actual y el último valor consultado.
+
+	Los campos a introducir serían:
+
+	- id
+	- divisa
+	- valor
+	- fecha
+	- hora
+
+	Un ejemplo del código SQL sería el siguiente:
+	```
+	CREATE TABLE "cryptos" (
+		"id"	INTEGER,
+		"divisa"	TEXT NOT NULL,
+		"valor"	INTEGER NOT NULL,
+		"fecha"	TEXT NOT NULL,
+		"hora"	TEXT NOT NULL,
+		PRIMARY KEY("id" AUTOINCREMENT)
+	);
+	```
 
 4. Configura tu aplicación:
-	1. Crea un archivo en la raiz **config.py**, puedes usar **config_template.py** como referencia.
+	4.1. Crea un archivo en la raiz **config.py**, puedes usar **config_template.py** como referencia.
 	  Aquí tendrás que incluir tu **clave KEY** de COINMARKET y las **divisas** con las que deseas trabajar.
-	2. Crea un archivo **config.py** en */cryptowallet/static/js/modules*. Puedes usar **config_template.js** como plantilla.
-	  Aquí tendrás que incluir tu clave KEY (¡OJO! Desde aquí es visible  y se ha dejado solo como ejemplo por motivos académicos.)
-	  y las **divisas** con las que deseas trabajar. Importante seguir el mismo esquema y usar las mismas divisas si no quieres que se
+	4.2. Crea un archivo **config.js** en */cryptowallet/static/js/modules*. Puedes usar **config_template.js** como plantilla.
+	  Aquí tendrás que incluir tu **clave KEY** (¡OJO! Desde aquí es visible  y se ha dejado solo como ejemplo por motivos académicos.) Llamar a
+	  la API de COINMARKET desde js provoca problemas de CORS y además deja tu KEY facilmente accesible.
+	  Puede usarse 
+	  y las **divisas** con las que deseas trabajar. Importante seguir el mismo esquema y usar las mismas divisas en ambos archivos si no quieres que se
 	  produzcan errores.
+
+5. Inicializa la aplicación **flask run**. Debería de funcionar...
