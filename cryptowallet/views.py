@@ -36,6 +36,7 @@ def llamadaApi(amount,symbol,convert="EUR"):
         return data
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
+        return {"error": "error", "e": e}
 
 def ahora():
     ahoraFecha = date.today()
@@ -47,11 +48,14 @@ def ahora():
 
 def convierteUn(i):
     respuesta = llamadaApi(1, i)
-    unaCrypto = respuesta["data"]["quote"]["EUR"]["price"]
-    return unaCrypto
+    if respuesta["status"]["error_message"] == None:
+        unaCrypto = {"valor" : respuesta["data"]["quote"]["EUR"]["price"], "error_message": respuesta["status"]["error_message"]}
+        return unaCrypto
+    else:
+        return {"error_message": respuesta["status"]["error_message"]}
 
 def procesaStatus():
-    inversiones = {"cryptos": {}, "valor_crypto": 0, "resultado": 0, "uniCrypto": {}, "oldUniCrypto": {}}
+    inversiones = {"error_message": None,"cryptos": {}, "valor_crypto": 0, "resultado": 0, "uniCrypto": {}, "oldUniCrypto": {}}
     for i in CRYPTOS:
         invertido = dbManager.consultaUnaSQL( "SELECT moneda_from , sum(cantidad_from) FROM mis_movimientos WHERE moneda_from = ?", [i])
         recuperado = dbManager.consultaUnaSQL( "SELECT moneda_to, sum(cantidad_to) FROM mis_movimientos WHERE moneda_to = ?", [i])
@@ -66,7 +70,11 @@ def procesaStatus():
             recuperado["sum(cantidad_to)"] = 0
 
         if i != "EUR":
-            unaCrypto = convierteUn(i)
+            conversionUnitaria = convierteUn(i)
+            if conversionUnitaria["error_message"] != None:
+                return {"error_message" :conversionUnitaria["error_message"]}
+            unaCrypto = conversionUnitaria["valor"]
+            
             dbManager.modificaTablaSQL( """INSERT INTO cryptos (fecha,hora,divisa,valor) VALUES (?,?,?,?)""",
                                         [ahora()["fecha"], ahora()["hora"], i, unaCrypto])
             inversiones["uniCrypto"][i] = unaCrypto
@@ -81,6 +89,7 @@ def procesaStatus():
             inversiones["EUR"]={"total": total, "total_eur": total, "total_f": invertido["sum(cantidad_from)"]}
 
         inversiones["resultado"] = inversiones["EUR"]["total_f"] + (inversiones["EUR"]["total_eur"] + inversiones["valor_crypto"])
+        inversiones["error_message"] = None
 
     return inversiones
 
@@ -167,7 +176,8 @@ def status():
     try:
         if request.method == "GET":
             datos = procesaStatus()
-            return jsonify({"status": "success", "data": datos})
+            if datos["error_message"] != None:
+                return jsonify({"status": "fail", "mensaje": "error tipo {}".format(datos["error_message"])}), HTTPStatus.BAD_REQUEST
             
     except sqlite3.Error as e:
         print ("Error en SQL", e)
@@ -177,9 +187,11 @@ def status():
 def convertir(cantidad, _de , _para):
     try:
        conversion = llamadaApi(cantidad, _de, _para)
+       if conversion["status"]["error_message"] != None:
+           return jsonify({"status": "fail", "mensaje": "error al consultar la api: {}".format(conversion["error_message"])}), HTTPStatus.BAD_REQUEST
        ##Antes se enviaba la respuesta completa de la Api, aquí se ha optado por mandarla limpia. No se si es una solución más eficiente.
        return jsonify({"status": "success", "mensaje": conversion["data"]["quote"][_para]["price"]})
     except:
-        print ("Error en SQL", e)
-        return jsonify({"status": "fail", "mensaje": "error al consultar la api"}), HTTPStatus.BAD_REQUEST
+        print ("Error en SQL", conversion)
+        return jsonify({"status": "fail", "mensaje": "Error al consultar la api"}), HTTPStatus.BAD_REQUEST
    

@@ -136,11 +136,19 @@ function muestraMovimientos() {
 
 // Consultar estatus de la inversión
 function muestraStatus() {
+    if (this.readyState === 4 && this.status === 400) {
+        const estado = JSON.parse(this.responseText)
+        
+        alert (`No se ha podido consultar el estado de la inversión. Existe este problema: ${estado.mensaje}`)
+        console.log("falla la funcion status")
+        return
+    }
+
     if (this.readyState === 4 && this.status === 200) {
         const estado = JSON.parse(this.responseText)
         
         if (estado.status !== "success") {
-            alert ("No se ha podido consultar el estado de la inversión")
+            alert (`No se ha podido consultar el estado de la inversión. Existe este problema: ${estado.mensaje}`)
             console.log("falla la funcion status")
             return
         }
@@ -225,6 +233,15 @@ function access_status() {
 
 //Gestiona la respuesta de la API, incluye el valor recibido y cambia los botones permitiendo grabar el movimiento.
 function respuestaApi() {
+    
+    if (this.readyState === 4 && this.status === 400) {
+        const estado = JSON.parse(this.responseText)
+        
+        alert (`No se ha podido consultar el estado de la inversión. Existe este problema: ${estado.mensaje}`)
+        console.log("falla la funcion status")
+        return
+    }
+
     if (this.readyState === 4 && this.status === 200) {
         console.log(this.responseText)
         const respuesta = JSON.parse(this.responseText)
@@ -314,6 +331,7 @@ window.onload = function() {
     //SI SE PULSA BOTÓN CANCELAR EL FORMULARIO SE RESTABLECE Y SE ANULA LA INSCRIPCIÓN
     document.querySelector("#cancelar")
     .addEventListener("click", () => {
+        evento.preventDefault()
         // Restablecer formulario            
         mostrar("#calcular")
         ocultar("#aceptar")
@@ -324,6 +342,7 @@ window.onload = function() {
     // SI SE PULSA ACEPTAR EL MOVIMIENTO DEBE ENVIARSE AL SERVIDOR PARA QUE LO PROCESE Y LO INCLUYA EN EL JQUERY.
     document.querySelector("#aceptar")
     .addEventListener("click", () => {
+        evento.preventDefault()
         var cambio = {}
         //Valores del formulario
         cambio.moneda_from = document.querySelector("#moneda_from").value
