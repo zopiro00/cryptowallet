@@ -88,21 +88,25 @@ def procesaStatus():
             total= float(invertido["sum(cantidad_from)"])-float(recuperado["sum(cantidad_to)"])
             inversiones["EUR"]={"total": total, "total_eur": total, "total_f": invertido["sum(cantidad_from)"]}
 
-        inversiones["resultado"] = inversiones["EUR"]["total_f"] + (inversiones["EUR"]["total_eur"] + inversiones["valor_crypto"])
+        inversiones["resultado"] = inversiones["valor_crypto"] - inversiones["EUR"]["total_eur"]
         inversiones["error_message"] = None
 
     return inversiones
 
-def esValido(mf,cf,mt,ct):
+statusProcesado = procesaStatus()
+
+def esValido(mf,cf,mt):
     esValido = True
 
     # El try es por si alguien enviara algo que no es número.
     try: 
         if mf == mt:
             esValido = False
-        if mf != "EUR" and float(cf) > procesaStatus()["data"]["cryptos"][mf]["total"]:
+        if mf != "EUR" and float(cf) > statusProcesado["cryptos"][mf]["total"]:
             esValido = False
-        if 0.000000001 < float(cf) > 100000000:
+        if 0.000000001 > float(cf):
+            esValido = False
+        elif float(cf) > 100000000:
             esValido = False
         return esValido
     except:
@@ -141,7 +145,7 @@ def detalleMovimiento(id=None):
         moneda_to = request.json["moneda_to"]
         cantidad_from = request.json["cantidad_from"]
         cantidad_to = request.json["cantidad_to"]
-        validar = esValido(moneda_from,float(cantidad_from),moneda_to,float(cantidad_to))
+        validar = esValido(moneda_from,float(cantidad_from),moneda_to)
     else:
         return jsonify({"status": "fail", "mensaje": "No se han reciido datos que procesar"}), HTTPStatus.NOT_FOUND
     if validar:
@@ -174,24 +178,27 @@ def detalleMovimiento(id=None):
 @app.route('/api/v1/status')
 def status():
     try:
-        if request.method == "GET":
-            datos = procesaStatus()
-            if datos["error_message"] != None:
-                return jsonify({"status": "fail", "mensaje": "error tipo {}".format(datos["error_message"])}), HTTPStatus.BAD_REQUEST
-            
+        # Se procesa Status, es decir, se sacan valores unitarios,
+        datos = statusProcesado
+        if datos["error_message"] != None:
+            respuesta = jsonify({"status": "fail", "mensaje": "error tipo {}".format(datos["error_message"])})
+            return respuesta
+        else:
+            return jsonify({"status": "success", "data": datos})
     except sqlite3.Error as e:
         print ("Error en SQL", e)
-        return jsonify({"status": "fail", "mensaje": "error tipo {}".format(e)}), HTTPStatus.BAD_REQUEST
+        respuesta = jsonify({"status": "fail", "mensaje": "error tipo {}".format(e)})
+        return respuesta, HTTPStatus.BAD_REQUEST
 
 @app.route('/api/v1/convertir/<cantidad>/<_de>/<_para>', methods=["GET"])
 def convertir(cantidad, _de , _para):
-    try:
-       conversion = llamadaApi(cantidad, _de, _para)
-       if conversion["status"]["error_message"] != None:
-           return jsonify({"status": "fail", "mensaje": "error al consultar la api: {}".format(conversion["error_message"])}), HTTPStatus.BAD_REQUEST
-       ##Antes se enviaba la respuesta completa de la Api, aquí se ha optado por mandarla limpia. No se si es una solución más eficiente.
-       return jsonify({"status": "success", "mensaje": conversion["data"]["quote"][_para]["price"]})
-    except:
-        print ("Error en SQL", conversion)
-        return jsonify({"status": "fail", "mensaje": "Error al consultar la api"}), HTTPStatus.BAD_REQUEST
-   
+        try:
+            conversion = llamadaApi(cantidad, _de, _para)
+            if conversion["status"]["error_message"] != None:
+                return jsonify({"status": "fail", "mensaje": "error al consultar la api: {}".format(conversion["error_message"])}), HTTPStatus.BAD_REQUEST
+            ##Antes se enviaba la respuesta completa de la Api, aquí se ha optado por mandarla limpia. No se si es una solución más eficiente.
+            return jsonify({"status": "success", "mensaje": conversion["data"]["quote"][_para]["price"]})
+        except:
+            print ("Error en SQL", conversion)
+            return jsonify({"status": "fail", "mensaje": "Error al consultar la api"}), HTTPStatus.BAD_REQUEST
+    

@@ -4,9 +4,9 @@ import { divisas, COINMARKET_KEY, servidor} from "./modules/config.js"
 
 const decimales = 4
 
-let losMovimientos
-let inv
-let quote
+var losMovimientos
+var inv
+var quote
 
 function reset(query) {
     document.querySelector(query).innerHTML = ""
@@ -58,15 +58,35 @@ function validar(consulta) {
         validado = false 
     }
     if (consulta.moneda_from != "EUR") {
-        var saldo = inv.cryptos[consulta.moneda_from].total
-        if (consulta.cantidad_from > saldo) {
+        if (consulta.moneda_from in inv.cryptos) {
+            /*Este valor da error si no está definida la moneda por eso el if superior. */
+            var saldo = inv.cryptos[consulta.moneda_from].total
+            if (consulta.cantidad_from > saldo) {
+                validado = false
+
+                /*Este código tan feo y largo es el mensaje de error de que falta saldo */
+                error = document.createElement("div")
+                error.setAttribute("class","card error")
+                error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
+                document.querySelector("#errores").appendChild(error)
+                cruz = document.querySelector(".closebtn")
+                cruz.addEventListener("click", ()=> {
+                cruz.parentElement.parentElement.style.display='none'
+                })
+            } 
+        } else {
+            validado = false
+
+            /*Este código tan feo y largo es el mensaje de error de que falta saldo */
             error = document.createElement("div")
             error.setAttribute("class","card error")
             error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
             document.querySelector("#errores").appendChild(error)
-            validado = false
+            cruz = document.querySelector(".closebtn")
+            cruz.addEventListener("click", ()=> { cruz.parentElement.parentElement.style.display='none'})
         }
     }
+    
     if (consulta.cantidad_from >  1000000000 || consulta.cantidad_from < 0.00000001) { 
         error = document.createElement("div")
         error.setAttribute("class","card error")
@@ -267,6 +287,13 @@ function respuestaApi() {
 
 // Lo que ocurre cuando el movimiento se ha subido
 function nuevo_movimiento() {
+    if (this.readyState === 4 && this.status === 404) {
+        const respuesta = JSON.parse(this.responseText)
+        alert (`${respuesta.mensaje}`)
+        console.log("los datos introducidos no son válidos")
+        return
+    }
+
     if (this.readyState === 4 && this.status === 200) {
         const respuesta = JSON.parse(this.responseText)
         
@@ -304,10 +331,7 @@ window.onload = function() {
         const c_from = document.querySelector("#cantidad_from")
         const m_to = document.querySelector("#moneda_to")
 
-        // Aquí se bloquean los cambios para evitar que se modifiquen después de la validación.
-        m_from.setAttribute("disabled","")
-        c_from.setAttribute("disabled","")
-        m_to.setAttribute("disabled","")
+ 
 
         // Preparar envío de consulta
         const consulta = {}
@@ -325,6 +349,11 @@ window.onload = function() {
             */
             xhr_calc.send()
             console.log("peticion enviada.")
+
+            // Aquí se bloquean los cambios para evitar que se modifiquen después de la validación.
+            m_from.setAttribute("disabled","")
+            c_from.setAttribute("disabled","")
+            m_to.setAttribute("disabled","")
         }
     })
     
@@ -342,7 +371,6 @@ window.onload = function() {
     // SI SE PULSA ACEPTAR EL MOVIMIENTO DEBE ENVIARSE AL SERVIDOR PARA QUE LO PROCESE Y LO INCLUYA EN EL JQUERY.
     document.querySelector("#aceptar")
     .addEventListener("click", () => {
-        evento.preventDefault()
         var cambio = {}
         //Valores del formulario
         cambio.moneda_from = document.querySelector("#moneda_from").value
