@@ -32,29 +32,23 @@ function mostrar(operador) {
     b.setAttribute("class", "inverse")
 }
 
+function popError(mensaje) {
+    var error = document.createElement("div")
+    error.setAttribute("class","card error")
+    error.innerHTML = `<div class='section'><span class='closebtn'>&times;</span> ${mensaje}</div>`
+    document.querySelector("#errores").appendChild(error)
+    cruz = document.querySelector(".closebtn")
+    cruz.addEventListener("click", ()=> { cruz.parentElement.parentElement.style.display='none'})
+}
+
 function validar(consulta) {
     var validado = true
-    var error
     if (Number(consulta.cantidad_from) == NaN) {
-        error = document.createElement("div")
-        error.setAttribute("class","card error")
-        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Sólo de aceptan carácteres numéricos en el campo cantidad.</div>"
-        document.querySelector("#errores").appendChild(error)
-        var cruz = document.querySelector(".closebtn")
-        cruz.addEventListener("click", ()=> {
-        cruz.parentElement.parentElement.style.display='none'
-        })
+        popError("Sólo de aceptan carácteres numéricos en el campo cantidad.")
         validado = false 
     }
     if (consulta.moneda_from == consulta.moneda_to) {
-        error = document.createElement("div")
-        error.setAttribute("class","card error")
-        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> Las divisas deben ser distintas</div>"
-        document.querySelector("#errores").appendChild(error)
-        cruz = document.querySelector(".closebtn")
-        cruz.addEventListener("click", ()=> {
-        cruz.parentElement.parentElement.style.display='none'
-        })
+        popError("Las divisas deben ser distintas")
         validado = false 
     }
     if (consulta.moneda_from != "EUR") {
@@ -62,36 +56,16 @@ function validar(consulta) {
             /*Este valor da error si no está definida la moneda por eso el if superior. */
             var saldo = inv.cryptos[consulta.moneda_from].total
             if (consulta.cantidad_from > saldo) {
+                popError("No tienes suficiente saldo")
                 validado = false
-
-                /*Este código tan feo y largo es el mensaje de error de que falta saldo */
-                error = document.createElement("div")
-                error.setAttribute("class","card error")
-                error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
-                document.querySelector("#errores").appendChild(error)
-                cruz = document.querySelector(".closebtn")
-                cruz.addEventListener("click", ()=> {
-                cruz.parentElement.parentElement.style.display='none'
-                })
             } 
         } else {
+            popError("No tienes suficiente saldo")
             validado = false
-
-            /*Este código tan feo y largo es el mensaje de error de que falta saldo */
-            error = document.createElement("div")
-            error.setAttribute("class","card error")
-            error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span> No tienes suficiente saldo</div>"
-            document.querySelector("#errores").appendChild(error)
-            cruz = document.querySelector(".closebtn")
-            cruz.addEventListener("click", ()=> { cruz.parentElement.parentElement.style.display='none'})
         }
     }
-    
     if (consulta.cantidad_from >  1000000000 || consulta.cantidad_from < 0.00000001) { 
-        error = document.createElement("div")
-        error.setAttribute("class","card error")
-        error.innerHTML = "<div class='section'><span class='closebtn'>&times;</span>La cantidad debe estar comprendida entre 1e+8 y 1e-8</div>"
-        document.querySelector("#errores").appendChild(error)
+        popError("La cantidad debe estar comprendida entre 1e+8 y 1e-8")
         validado = false
     }
     return validado
